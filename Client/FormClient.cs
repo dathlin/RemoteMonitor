@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using HslCommunication.Enthernet;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Client
 {
@@ -50,7 +51,7 @@ namespace Client
         private void ComplexClient_AcceptByte(AsyncStateOne stateOne, HslCommunication.NetHandle handle, byte[] buffer)
         {
             // 接收到服务器发送过来的字节数据时触发
-            if(handle == 1)
+            if (handle == 1)
             {
                 // 该buffer是读取到的西门子数据
                 ShowReadContent(buffer);
@@ -181,7 +182,6 @@ namespace Client
         }
 
         #endregion
-
-
+        
     }
 }
