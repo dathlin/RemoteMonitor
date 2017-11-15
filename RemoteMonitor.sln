@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2008
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlcReadTest", "PlcReadTest\PlcReadTest.csproj", "{A6429B18-C3C4-4CC2-B32B-DD7DB34F7E09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{C787FDE0-258A-45FE-8828-E73A24B85618}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6429B18-C3C4-4CC2-B32B-DD7DB34F7E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6429B18-C3C4-4CC2-B32B-DD7DB34F7E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6429B18-C3C4-4CC2-B32B-DD7DB34F7E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6429B18-C3C4-4CC2-B32B-DD7DB34F7E09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C787FDE0-258A-45FE-8828-E73A24B85618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C787FDE0-258A-45FE-8828-E73A24B85618}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C787FDE0-258A-45FE-8828-E73A24B85618}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C787FDE0-258A-45FE-8828-E73A24B85618}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88C0B12F-37F2-4387-B7C9-7679C374BAB5}
+	EndGlobalSection
+EndGlobal
