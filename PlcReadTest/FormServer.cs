@@ -95,13 +95,18 @@ namespace PlcReadTest
             {
                 if(isReadingPlc)
                 {
+
+                    // 这里仅仅演示了西门子的数据读取
+                    // 事实上你也可以改成三菱的，无非解析数据的方式不一致而已，其他数据推送代码都是一样的
+
+
                     HslCommunication.OperateResultBytes read = siemensTcpNet.ReadFromPLC("M100", 7);
 
                     if(read.IsSuccess)
                     {
                         failed = 0;                                 // 读取失败次数清空
                         netComplex.SendAllClients(1, read.Content); // 群发所有客户端
-                        ShowReadContent(read.Content);
+                        ShowReadContent(read.Content);              // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
                     }
                     else
                     {
@@ -135,14 +140,14 @@ namespace PlcReadTest
                 return;
             }
 
-
+            // 提取数据
             double temp1 = siemensTcpNet.GetShortFromBytes(content, 0) / 10.0;
             bool machineEnable = content[2] != 0x00;
             int product = siemensTcpNet.GetIntFromBytes(content, 3);
 
+            // 开始显示
             label2.Text = temp1.ToString();
-            // 如果温度超100℃就把背景改为红色
-            label2.BackColor = temp1 > 100d ? Color.Tomato : Color.Transparent;
+            label2.BackColor = temp1 > 100d ? Color.Tomato : Color.Transparent;  // 如果温度超100℃就把背景改为红色
             label3.Text = product.ToString();
 
             label5.Text = machineEnable ? "运行中" : "未启动";
@@ -152,6 +157,20 @@ namespace PlcReadTest
         #endregion
         
         #region 定时器块
+
+
+        /*********************************************************************************************
+         * 
+         *    功能说明：
+         *    定时器块实现的功能是当连续3次读取PLC数据失败时，就将窗口进行闪烁。
+         * 
+         *********************************************************************************************/
+
+
+
+
+
+
 
         private Timer timer = null;
         private bool m_isRedBackColor = false;
