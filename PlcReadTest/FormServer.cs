@@ -134,8 +134,10 @@ namespace PlcReadTest
         // 读取成功时，显示结果数据
         private void ShowReadContent(byte[] content)
         {
+            // 本方法是考虑了后台线程调用的情况
             if(InvokeRequired)
             {
+                // 如果是后台调用显示UI，那么就使用委托来切换到前台显示
                 Invoke(new Action<byte[]>(ShowReadContent), content);
                 return;
             }
@@ -144,6 +146,9 @@ namespace PlcReadTest
             double temp1 = siemensTcpNet.GetShortFromBytes(content, 0) / 10.0;
             bool machineEnable = content[2] != 0x00;
             int product = siemensTcpNet.GetIntFromBytes(content, 3);
+
+            // 实际项目的时候应该在此处进行将数据存储到数据库，你可以选择MySql,SQL SERVER,ORACLE等等
+
 
             // 开始显示
             label2.Text = temp1.ToString();
@@ -163,14 +168,10 @@ namespace PlcReadTest
          * 
          *    功能说明：
          *    定时器块实现的功能是当连续3次读取PLC数据失败时，就将窗口进行闪烁。
+         *    重新连接上时，就显示信号成功。
          * 
          *********************************************************************************************/
-
-
-
-
-
-
+         
 
         private Timer timer = null;
         private bool m_isRedBackColor = false;
