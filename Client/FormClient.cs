@@ -30,6 +30,8 @@ namespace Client
 
         #region Complex Client
 
+        //===========================================================================================================
+        // 网络通讯的客户端块，负责接收来自服务器端推送的数据
 
         private NetComplexClient complexClient;
 

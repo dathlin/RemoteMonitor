@@ -100,7 +100,7 @@ namespace PlcReadTest
                     // 事实上你也可以改成三菱的，无非解析数据的方式不一致而已，其他数据推送代码都是一样的
 
 
-                    HslCommunication.OperateResultBytes read = siemensTcpNet.ReadFromPLC("M100", 7);
+                    HslCommunication.OperateResult<byte[]> read = siemensTcpNet.ReadFromPLC("M100", 7);
 
                     if(read.IsSuccess)
                     {
