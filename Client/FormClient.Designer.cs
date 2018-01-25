@@ -34,9 +34,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.userCurve1 = new HslCommunication.Controls.UserCurve();
             this.SuspendLayout();
             // 
             // label5
@@ -102,15 +101,6 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "温度：";
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(12, 201);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(828, 278);
-            this.pictureBox1.TabIndex = 14;
-            this.pictureBox1.TabStop = false;
-            // 
             // panel1
             // 
             this.panel1.Location = new System.Drawing.Point(419, 19);
@@ -118,13 +108,25 @@
             this.panel1.Size = new System.Drawing.Size(401, 154);
             this.panel1.TabIndex = 15;
             // 
+            // userCurve1
+            // 
+            this.userCurve1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
+            this.userCurve1.ColorDashLines = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.userCurve1.ColorLinesAndText = System.Drawing.Color.Gray;
+            this.userCurve1.Location = new System.Drawing.Point(15, 183);
+            this.userCurve1.Name = "userCurve1";
+            this.userCurve1.Size = new System.Drawing.Size(792, 320);
+            this.userCurve1.TabIndex = 16;
+            this.userCurve1.ValueMaxLeft = 200F;
+            this.userCurve1.ValueMaxRight = 200F;
+            // 
             // FormClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(852, 491);
+            this.ClientSize = new System.Drawing.Size(796, 516);
+            this.Controls.Add(this.userCurve1);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label3);
@@ -135,7 +137,6 @@
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormClient_FormClosing);
             this.Load += new System.EventHandler(this.FormClient_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -149,8 +150,8 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Panel panel1;
+        private HslCommunication.Controls.UserCurve userCurve1;
     }
 }
 

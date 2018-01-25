@@ -20,6 +20,8 @@ namespace Client
         private void FormClient_Load(object sender, EventArgs e)
         {
             NetComplexInitialization();
+
+            userCurve1.SetLeftCurve( "A", new float[0], Color.LimeGreen );  // 新增一条实时曲线
         }
 
         private void FormClient_FormClosing(object sender, FormClosingEventArgs e)
@@ -97,90 +99,13 @@ namespace Client
             label5.Text = machineEnable ? "运行中" : "未启动";
 
 
-            // 添加到队列
-            AddValueToList(temp1);
-            // 显示
-            pictureBox1.Image = GetBitmap();
+            // 添加实时的数据曲线
+            userCurve1.AddCurveData( "A", temp1 );
         }
+        
+        
 
 
-        // 缓存数组队列
-        private float[] listTemp = new float[200];
-
-
-        private void AddValueToList(float value)
-        {
-            for (int i = 0; i < listTemp.Length - 1; i++)
-            {
-                listTemp[i] = listTemp[i + 1];
-            }
-
-            listTemp[listTemp.Length - 1] = value;
-        }
-
-
-
-        private Bitmap GetBitmap()
-        {
-            Bitmap bitmap = new Bitmap(826, 276);
-
-            Graphics g = Graphics.FromImage(bitmap);
-            g.Clear(Color.White);
-
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            // 假设最高温度为200℃，然后我们分4个档次
-
-
-            Pen penDash = new Pen(Color.LightGray, 1)
-            {
-                DashStyle = System.Drawing.Drawing2D.DashStyle.Custom,
-                DashPattern = new float[] { 5, 5 }
-            };
-            Font font = new Font("宋体", 9f);
-
-
-
-            // 先画虚线
-            for (int i = 20; i < 260; i += 60)
-            {
-                g.DrawLine(penDash, 50, i, 776, i);
-            }
-
-
-            // 画极轴
-            g.DrawLine(Pens.DimGray, 49, 15, 49, 265);
-            // 画箭头
-            HslCommunication.BasicFramework.SoftPainting.PaintTriangle(g, Brushes.DimGray, new Point(49, 15), 5, HslCommunication.BasicFramework.GraphDirection.Upward);
-
-            // 画极轴
-            g.DrawLine(Pens.DimGray, 45, 265, 780, 265);
-            // 画箭头
-            HslCommunication.BasicFramework.SoftPainting.PaintTriangle(g, Brushes.DimGray, new Point(780, 265), 5, HslCommunication.BasicFramework.GraphDirection.Rightward);
-
-
-            // 画刻度
-            for (int i = 20; i <= 260; i += 60)
-            {
-                g.DrawLine(Pens.DimGray, 45, i, 49, i);
-                string str = (200 - 5 * (i - 20) / 6).ToString();
-                g.DrawString(str, font, Brushes.Blue, new Point(20, i - 5));
-            }
-
-
-            // 画线
-            PointF[] points = new PointF[listTemp.Length];
-            for (int i = 0; i < points.Length; i++)
-            {
-                points[i].X = 50 + 726f / 200 * i;
-                points[i].Y = 260 - 6 * listTemp[i] / 5;
-            }
-            g.DrawLines(Pens.Tomato, points);
-
-
-            font.Dispose();
-            penDash.Dispose();
-            return bitmap;
-        }
 
         #endregion
         
