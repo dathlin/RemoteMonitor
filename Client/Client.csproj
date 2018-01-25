@@ -31,26 +31,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HslCommunication, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HslCommunication.4.1.0\lib\HslCommunication.dll</HintPath>
+    <Reference Include="HslCommunication, Version=4.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HslCommunication.4.3.0\lib\net35\HslCommunication.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web.DataVisualization, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Chart.Controls.3.5.30729\lib\net35\System.Web.DataVisualization.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.DataVisualization.Design, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Chart.Controls.3.5.30729\lib\net35\System.Web.DataVisualization.Design.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms.DataVisualization, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Chart.Controls.3.5.30729\lib\net35\System.Windows.Forms.DataVisualization.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms.DataVisualization.Design, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Chart.Controls.3.5.30729\lib\net35\System.Windows.Forms.DataVisualization.Design.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
