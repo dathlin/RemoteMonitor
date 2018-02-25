@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using HslCommunication.Enthernet;
 using HslCommunication.Profinet;
+using HslCommunication.LogNet;
 
 namespace PlcReadTest
 {
@@ -32,6 +33,7 @@ namespace PlcReadTest
 
         private void FormServer_Load(object sender, EventArgs e)
         {
+            LogNet = new LogNetDateTime(Application.StartupPath + "\\Logs", GenerateMode.ByEveryDay); // 创建日志器，按每天存储不同的文件
             NetComplexInitialization();          // 初始化网络服务
             TimerInitialization();               // 定时器初始化
             SiemensTcpNetInitialization();       // PLC读取初始化
@@ -45,9 +47,11 @@ namespace PlcReadTest
 
         private void NetComplexInitialization()
         {
-            netComplex = new NetComplexServer();
-            netComplex.AcceptString += NetComplex_AcceptString;
-            netComplex.ServerStart(23456);
+            netComplex = new NetComplexServer();                         // 实例化
+            netComplex.AcceptString += NetComplex_AcceptString;          // 绑定字符串接收事件
+            netComplex.LogNet = LogNet;                                  // 设置日志
+            netComplex.ServerStart(23456);                               // 启动网络服务
+
         }
 
         private void NetComplex_AcceptString(AsyncStateOne stateone, HslCommunication.NetHandle handle, string data)
@@ -66,9 +70,9 @@ namespace PlcReadTest
 
         private void SiemensTcpNetInitialization()
         {
-            siemensTcpNet = new SiemensTcpNet(SiemensPLCS.S1200);
-            siemensTcpNet.PLCIpAddress = System.Net.IPAddress.Parse("192.168.1.195");
-            siemensTcpNet.ConnectTimeout = 1000; // 超时时间为1秒
+            siemensTcpNet = new SiemensTcpNet(SiemensPLCS.S1200);                          // 实例化西门子的对象
+            siemensTcpNet.PLCIpAddress = System.Net.IPAddress.Parse("192.168.1.195");      // 设置IP地址
+            siemensTcpNet.ConnectTimeout = 1000;                                           // 超时时间为1秒
 
             // 启动后台读取的线程
             System.Threading.Thread thread = new System.Threading.Thread(new System.Threading.ThreadStart(ThreadBackgroundReadPlc));
@@ -212,19 +216,29 @@ namespace PlcReadTest
 
         #endregion
 
+        #region 日志块
+
+        /// <summary>
+        /// 系统的日志记录器
+        /// </summary>
+        private ILogNet LogNet { get; set; }
+
+        #endregion
         
 
-        private void button1_Click(object sender, EventArgs e)
+
+        private void userButton1_Click(object sender, EventArgs e)
         {
             isReadingPlc = !isReadingPlc;
-            if(isReadingPlc)
+            if (isReadingPlc)
             {
-                button1.BackColor = Color.Green;
+                userButton1.BackColor = Color.Green;
             }
             else
             {
-                button1.BackColor = SystemColors.Control;
+                userButton1.BackColor = Color.Lavender;
             }
+
         }
     }
 }

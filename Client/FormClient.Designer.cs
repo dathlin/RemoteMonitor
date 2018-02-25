@@ -34,8 +34,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.userCurve1 = new HslCommunication.Controls.UserCurve();
+            this.userGaugeChart1 = new HslCommunication.Controls.UserGaugeChart();
             this.SuspendLayout();
             // 
             // label5
@@ -101,13 +101,6 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "温度：";
             // 
-            // panel1
-            // 
-            this.panel1.Location = new System.Drawing.Point(419, 19);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(401, 154);
-            this.panel1.TabIndex = 15;
-            // 
             // userCurve1
             // 
             this.userCurve1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
@@ -115,18 +108,32 @@
             this.userCurve1.ColorLinesAndText = System.Drawing.Color.Gray;
             this.userCurve1.Location = new System.Drawing.Point(15, 183);
             this.userCurve1.Name = "userCurve1";
-            this.userCurve1.Size = new System.Drawing.Size(792, 320);
+            this.userCurve1.Size = new System.Drawing.Size(800, 342);
             this.userCurve1.TabIndex = 16;
             this.userCurve1.ValueMaxLeft = 200F;
             this.userCurve1.ValueMaxRight = 200F;
+            // 
+            // userGaugeChart1
+            // 
+            this.userGaugeChart1.BackColor = System.Drawing.Color.Transparent;
+            this.userGaugeChart1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.userGaugeChart1.Location = new System.Drawing.Point(422, 19);
+            this.userGaugeChart1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.userGaugeChart1.Name = "userGaugeChart1";
+            this.userGaugeChart1.SegmentCount = 12;
+            this.userGaugeChart1.Size = new System.Drawing.Size(359, 148);
+            this.userGaugeChart1.TabIndex = 17;
+            this.userGaugeChart1.ValueAlarmMax = 100D;
+            this.userGaugeChart1.ValueAlarmMin = 0D;
+            this.userGaugeChart1.ValueMax = 120D;
             // 
             // FormClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(796, 516);
+            this.ClientSize = new System.Drawing.Size(827, 540);
+            this.Controls.Add(this.userGaugeChart1);
             this.Controls.Add(this.userCurve1);
-            this.Controls.Add(this.panel1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label3);
@@ -150,8 +157,8 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel1;
         private HslCommunication.Controls.UserCurve userCurve1;
+        private HslCommunication.Controls.UserGaugeChart userGaugeChart1;
     }
 }
 

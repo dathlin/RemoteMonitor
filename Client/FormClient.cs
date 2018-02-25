@@ -92,6 +92,7 @@ namespace Client
             int product = BitConverter.ToInt32(buffer2, 0);
 
             label2.Text = temp1.ToString();
+
             // 如果温度超100℃就把背景改为红色
             label2.BackColor = temp1 > 100d ? Color.Tomato : Color.Transparent;
             label3.Text = product.ToString();
