@@ -15,7 +15,7 @@
 
 ![server](https://github.com/dathlin/RemoteMonitor/raw/master/img/server1.png)
 
-![client](https://github.com/dathlin/RemoteMonitor/raw/master/img/client1.png)
+![client](https://github.com/dathlin/RemoteMonitor/raw/master/img/Client1.png)
 
 
 如果需要客户端支持更高级的内容账户登录，版本控制，消息群发，权限控制等等功能，可以参考下面的项目：
