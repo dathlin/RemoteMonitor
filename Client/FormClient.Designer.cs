@@ -112,20 +112,21 @@
             this.userCurve1.TabIndex = 16;
             this.userCurve1.ValueMaxLeft = 200F;
             this.userCurve1.ValueMaxRight = 200F;
+            this.userCurve1.ValueSegment = 10;
             // 
             // userGaugeChart1
             // 
-            this.userGaugeChart1.BackColor = System.Drawing.Color.Transparent;
+            this.userGaugeChart1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
             this.userGaugeChart1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.userGaugeChart1.Location = new System.Drawing.Point(422, 19);
             this.userGaugeChart1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.userGaugeChart1.Name = "userGaugeChart1";
-            this.userGaugeChart1.SegmentCount = 12;
+            this.userGaugeChart1.PointerColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
             this.userGaugeChart1.Size = new System.Drawing.Size(359, 148);
             this.userGaugeChart1.TabIndex = 17;
             this.userGaugeChart1.ValueAlarmMax = 100D;
             this.userGaugeChart1.ValueAlarmMin = 0D;
-            this.userGaugeChart1.ValueMax = 120D;
+            this.userGaugeChart1.ValueMax = 200D;
             // 
             // FormClient
             // 
@@ -141,7 +142,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "FormClient";
-            this.Text = "Form1";
+            this.Text = "客户端界面";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormClient_FormClosing);
             this.Load += new System.EventHandler(this.FormClient_Load);
             this.ResumeLayout(false);

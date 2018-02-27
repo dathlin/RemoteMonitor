@@ -37,10 +37,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.系统设置ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label7 = new System.Windows.Forms.Label();
             this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.userButton1 = new HslCommunication.Controls.UserButton();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,12 +50,12 @@
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(14, 259);
+            this.textBox1.Location = new System.Drawing.Point(14, 279);
             this.textBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(816, 341);
+            this.textBox1.Size = new System.Drawing.Size(816, 321);
             this.textBox1.TabIndex = 1;
             // 
             // label1
@@ -140,20 +141,20 @@
             this.系统设置ToolStripMenuItem.Size = new System.Drawing.Size(104, 31);
             this.系统设置ToolStripMenuItem.Text = "系统设置";
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 238);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(68, 17);
-            this.label7.TabIndex = 9;
-            this.label7.Text = "系统日志：";
-            // 
             // 关于ToolStripMenuItem
             // 
             this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
             this.关于ToolStripMenuItem.Size = new System.Drawing.Size(64, 31);
             this.关于ToolStripMenuItem.Text = "关于";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(12, 258);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(68, 17);
+            this.label7.TabIndex = 9;
+            this.label7.Text = "系统日志：";
             // 
             // label8
             // 
@@ -178,11 +179,21 @@
             this.userButton1.UIText = "启动引擎";
             this.userButton1.Click += new System.EventHandler(this.userButton1_Click);
             // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 17;
+            this.listBox1.Location = new System.Drawing.Point(14, 64);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(368, 191);
+            this.listBox1.TabIndex = 12;
+            // 
             // FormServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(842, 613);
+            this.Controls.Add(this.listBox1);
             this.Controls.Add(this.userButton1);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
@@ -221,6 +232,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private HslCommunication.Controls.UserButton userButton1;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }
 

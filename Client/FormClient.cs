@@ -22,11 +22,14 @@ namespace Client
             NetComplexInitialization();
 
             userCurve1.SetLeftCurve( "A", new float[0], Color.LimeGreen );  // 新增一条实时曲线
+            userCurve1.AddLeftAuxiliary( 100, Color.Tomato );               // 新增一条100度的辅助线
         }
 
         private void FormClient_FormClosing(object sender, FormClosingEventArgs e)
         {
             complexClient?.ClientClose();
+
+            System.Threading.Thread.Sleep( 100 );
         }
 
         #region Complex Client
@@ -35,6 +38,7 @@ namespace Client
         // 网络通讯的客户端块，负责接收来自服务器端推送的数据
 
         private NetComplexClient complexClient;
+        private bool isClientIni = false;                       // 客户端是否进行初始化过数据
 
         private void NetComplexInitialization()
         {
@@ -57,7 +61,17 @@ namespace Client
             if (handle == 1)
             {
                 // 该buffer是读取到的西门子数据
-                ShowReadContent(buffer);
+                if (isClientIni)
+                {
+                    ShowReadContent( buffer );
+                }
+            }
+            else if(handle == 2)
+            {
+                // 初始化的数据
+                ShowHistory( buffer );
+
+                isClientIni = true;
             }
         }
 
@@ -70,7 +84,7 @@ namespace Client
         // 接收到服务器传送过来的数据后需要对数据进行解析显示
         private void ShowReadContent(byte[] content)
         {
-            if (InvokeRequired)
+            if (InvokeRequired && !IsDisposed)
             {
                 Invoke(new Action<byte[]>(ShowReadContent), content);
                 return;
@@ -99,13 +113,31 @@ namespace Client
 
             label5.Text = machineEnable ? "运行中" : "未启动";
 
+            // 添加仪表盘显示
+            userGaugeChart1.Value = Math.Round( temp1, 1 );
 
             // 添加实时的数据曲线
             userCurve1.AddCurveData( "A", temp1 );
         }
         
         
+        private void ShowHistory( byte[] content )
+        {
+            if (InvokeRequired && !IsDisposed)
+            {
+                Invoke( new Action<byte[]>( ShowHistory ), content );
+                return;
+            }
 
+            float[] value = new float[content.Length / 4];
+            for (int i = 0; i < value.Length; i++)
+            {
+                value[i] = BitConverter.ToSingle( content, i * 4 );
+            }
+
+            userCurve1.AddCurveData( "A", value );
+
+        }
 
 
         #endregion
