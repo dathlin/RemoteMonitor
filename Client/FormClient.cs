@@ -77,8 +77,7 @@ namespace Client
 
 
         #endregion
-
-
+        
         #region MyRegion
 
         // 接收到服务器传送过来的数据后需要对数据进行解析显示
@@ -141,6 +140,39 @@ namespace Client
 
 
         #endregion
-        
+
+        #region Simplify Client
+
+        private NetSimplifyClient simplifyClient = new NetSimplifyClient( "127.0.0.1", 23457 );
+
+        #endregion
+
+        private void userButton2_Click( object sender, EventArgs e )
+        {
+            // 远程通知服务器启动设备 
+            HslCommunication.OperateResult<string> operate = simplifyClient.ReadFromServer( 1, "" );
+            if (operate.IsSuccess)
+            {
+                MessageBox.Show( operate.Content );
+            }
+            else
+            {
+                MessageBox.Show( "启动失败！" );
+            }
+        }
+
+        private void userButton3_Click( object sender, EventArgs e )
+        {
+            // 远程通知服务器停止设备
+            HslCommunication.OperateResult<string> operate = simplifyClient.ReadFromServer( 2, "" );
+            if (operate.IsSuccess)
+            {
+                MessageBox.Show( operate.Content );
+            }
+            else
+            {
+                MessageBox.Show( "启动失败！" );
+            }
+        }
     }
 }

@@ -36,6 +36,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.userCurve1 = new HslCommunication.Controls.UserCurve();
             this.userGaugeChart1 = new HslCommunication.Controls.UserGaugeChart();
+            this.userButton3 = new HslCommunication.Controls.UserButton();
+            this.userButton2 = new HslCommunication.Controls.UserButton();
             this.SuspendLayout();
             // 
             // label5
@@ -106,7 +108,7 @@
             this.userCurve1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
             this.userCurve1.ColorDashLines = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.userCurve1.ColorLinesAndText = System.Drawing.Color.Gray;
-            this.userCurve1.Location = new System.Drawing.Point(15, 183);
+            this.userCurve1.Location = new System.Drawing.Point(12, 256);
             this.userCurve1.Name = "userCurve1";
             this.userCurve1.Size = new System.Drawing.Size(800, 342);
             this.userCurve1.TabIndex = 16;
@@ -128,11 +130,41 @@
             this.userGaugeChart1.ValueAlarmMin = 0D;
             this.userGaugeChart1.ValueMax = 200D;
             // 
+            // userButton3
+            // 
+            this.userButton3.BackColor = System.Drawing.Color.Transparent;
+            this.userButton3.CustomerInformation = "";
+            this.userButton3.EnableColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(190)))), ((int)(((byte)(190)))));
+            this.userButton3.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.userButton3.Location = new System.Drawing.Point(107, 197);
+            this.userButton3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.userButton3.Name = "userButton3";
+            this.userButton3.Size = new System.Drawing.Size(89, 34);
+            this.userButton3.TabIndex = 19;
+            this.userButton3.UIText = "停止运行";
+            this.userButton3.Click += new System.EventHandler(this.userButton3_Click);
+            // 
+            // userButton2
+            // 
+            this.userButton2.BackColor = System.Drawing.Color.Transparent;
+            this.userButton2.CustomerInformation = "";
+            this.userButton2.EnableColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(190)))), ((int)(((byte)(190)))));
+            this.userButton2.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.userButton2.Location = new System.Drawing.Point(12, 197);
+            this.userButton2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.userButton2.Name = "userButton2";
+            this.userButton2.Size = new System.Drawing.Size(89, 34);
+            this.userButton2.TabIndex = 18;
+            this.userButton2.UIText = "启动运行";
+            this.userButton2.Click += new System.EventHandler(this.userButton2_Click);
+            // 
             // FormClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(827, 540);
+            this.ClientSize = new System.Drawing.Size(835, 610);
+            this.Controls.Add(this.userButton3);
+            this.Controls.Add(this.userButton2);
             this.Controls.Add(this.userGaugeChart1);
             this.Controls.Add(this.userCurve1);
             this.Controls.Add(this.label5);
@@ -160,6 +192,8 @@
         private System.Windows.Forms.Label label1;
         private HslCommunication.Controls.UserCurve userCurve1;
         private HslCommunication.Controls.UserGaugeChart userGaugeChart1;
+        private HslCommunication.Controls.UserButton userButton3;
+        private HslCommunication.Controls.UserButton userButton2;
     }
 }
 

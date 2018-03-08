@@ -10,6 +10,7 @@ using HslCommunication.Enthernet;
 using HslCommunication.Profinet;
 using HslCommunication.LogNet;
 using Newtonsoft.Json.Linq;
+using System.Data.SqlClient;
 
 namespace PlcReadTest
 {
@@ -44,13 +45,14 @@ namespace PlcReadTest
             hybirdLock = new HslCommunication.Core.SimpleHybirdLock( );      // 锁的实例化
         }
 
-        private void FormServer_Load(object sender, EventArgs e)
+        private void FormServer_Load( object sender, EventArgs e )
         {
-            LogNet = new LogNetDateTime(Application.StartupPath + "\\Logs", GenerateMode.ByEveryDay); // 创建日志器，按每天存储不同的文件
+            LogNet = new LogNetDateTime( Application.StartupPath + "\\Logs", GenerateMode.ByEveryDay ); // 创建日志器，按每天存储不同的文件
             LogNet.BeforeSaveToFile += LogNet_BeforeSaveToFile;              // 设置存储日志前的一些额外操作
-            NetComplexInitialization();                                      // 初始化网络服务
-            TimerInitialization();                                           // 定时器初始化
-            SiemensTcpNetInitialization();                                   // PLC读取初始化
+            NetComplexInitialization( );                                     // 初始化网络服务
+            NetSimplifyInitialization( );                                    // 初始化同步网络服务
+            TimerInitialization( );                                          // 定时器初始化
+            SiemensTcpNetInitialization( );                                  // PLC读取初始化
         }
 
         
@@ -61,14 +63,14 @@ namespace PlcReadTest
 
         private NetComplexServer netComplex;
 
-        private void NetComplexInitialization()
+        private void NetComplexInitialization( )
         {
-            netComplex = new NetComplexServer();                         // 实例化
+            netComplex = new NetComplexServer( );                        // 实例化
             netComplex.AcceptString += NetComplex_AcceptString;          // 绑定字符串接收事件
             netComplex.ClientOnline += NetComplex_ClientOnline;          // 客户端上线的时候触发
             netComplex.ClientOffline += NetComplex_ClientOffline;        // 客户端下线的时候触发
             netComplex.LogNet = LogNet;                                  // 设置日志
-            netComplex.ServerStart(23456);                               // 启动网络服务
+            netComplex.ServerStart( 23456 );                             // 启动网络服务
 
         }
 
@@ -100,8 +102,43 @@ namespace PlcReadTest
         private void NetComplex_AcceptString(AsyncStateOne stateone, HslCommunication.NetHandle handle, string data)
         {
             // 接收到客户端发来的数据时触发
+
         }
 
+
+        #endregion
+
+        #region 同步网络服务器支持
+
+        private NetSimplifyServer netSimplify;                                     // 同步网络访问的服务支持
+
+        private void NetSimplifyInitialization( )
+        {
+            netSimplify = new NetSimplifyServer( );                                // 实例化
+            netSimplify.ReceiveStringEvent += NetSimplify_ReceiveStringEvent;      // 服务器接收字符串信息的时候，触发
+            netSimplify.LogNet = LogNet;                                           // 设置日志
+            netSimplify.ServerStart( 23457 );                                      // 启动服务
+        }
+
+        private void NetSimplify_ReceiveStringEvent( AsyncStateOne state, HslCommunication.NetHandle handle, string msg )
+        {
+            if (handle == 1)
+            {
+                // 远程启动设备
+                string back = siemensTcpNet.WriteIntoPLC( "M102", (byte)1 ).IsSuccess ? "成功启动" : "失败启动";
+                netSimplify.SendMessage( state, handle, back );
+            }
+            else if (handle == 2)
+            {
+                // 远程停止设备
+                string back = siemensTcpNet.WriteIntoPLC( "M102", (byte)0 ).IsSuccess ? "成功停止" : "失败停止";
+                netSimplify.SendMessage( state, handle, back );
+            }
+            else
+            {
+                netSimplify.SendMessage( state, handle, msg );
+            }
+        }
 
         #endregion
 
@@ -206,6 +243,8 @@ namespace PlcReadTest
                         failed = 0;                                              // 读取失败次数清空
                         netComplex.SendAllClients( 1, read.Content );            // 群发所有客户端
                         ShowReadContent( read.Content );                         // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
+
+
                     }
                     else
                     {
@@ -246,8 +285,9 @@ namespace PlcReadTest
             bool machineEnable = content[2] != 0x00;
             int product = siemensTcpNet.GetIntFromBytes(content, 3);
 
-            // 实际项目的时候应该在此处进行将数据存储到数据库，你可以选择MySql,SQL SERVER,ORACLE等等
 
+            // 实际项目的时候应该在此处进行将数据存储到数据库，你可以选择MySql,SQL SERVER,ORACLE等等
+            // SaveDataSqlServer( temp1 );         // 此处演示写入了SQL 数据库的方式
 
             // 开始显示
             label2.Text = temp1.ToString();
@@ -325,6 +365,12 @@ namespace PlcReadTest
 
         private void LogNet_BeforeSaveToFile( object sender, HslEventArgs e )
         {
+            if(textBox1.InvokeRequired)
+            {
+                textBox1.Invoke( new Action<object, HslEventArgs>( LogNet_BeforeSaveToFile ), sender, e );
+                return;
+            }
+
             textBox1.AppendText( GetStringFromLogMessage( e ) + Environment.NewLine );
         }
 
@@ -370,6 +416,39 @@ namespace PlcReadTest
 
         #endregion
 
+        #region 温度数据存储数据库
+
+
+        // 此处示例，将温度数据存储到SQL SERVER的数据库里
+        // 数据库名字为 myDatabase
+        // 数据库中有一张表，Data.Table 
+        // 该表有三列，第一列自增标识序列，第二列为温度，第三列时间
+
+        private void SaveDataSqlServer(double tmp)
+        {
+            try
+            {
+                string conStr = "server = 127.0.0.1; database = myDatabase; uid = sa; pwd = 123456";   // 取决于你实际安装的数据库
+                using (SqlConnection conn = new SqlConnection( conStr ))
+                {
+                    conn.Open( );
+                    using (SqlCommand cmd = new SqlCommand( "INSERT INTO DBO.Data VALUES('" + tmp + "',GETDATE())", conn ))
+                    {
+                        cmd.ExecuteNonQuery( );         // 执行数据库语句
+                    }
+                }
+                // 成功写入数据库
+            }
+            catch (Exception ex)
+            {
+                LogNet.WriteException( "数据库写入失败", ex );         // 写入日志
+            }
+        }
+
+
+
+        #endregion
+
         private void userButton1_Click(object sender, EventArgs e)
         {
             isReadingPlc = !isReadingPlc;
@@ -382,6 +461,34 @@ namespace PlcReadTest
                 userButton1.BackColor = Color.Lavender;
             }
 
+        }
+
+        private void userButton2_Click( object sender, EventArgs e )
+        {
+            // 启动运行，修改M102为1
+            HslCommunication.OperateResult write = siemensTcpNet.WriteIntoPLC( "M102", (byte)1 );
+            if(write.IsSuccess)
+            {
+                MessageBox.Show( "启动成功！" );
+            }
+            else
+            {
+                MessageBox.Show( "启动失败：" + write.ToMessageShowString( ) );
+            }
+        }
+
+        private void userButton3_Click( object sender, EventArgs e )
+        {
+            // 停止运行，修改M102为0
+            HslCommunication.OperateResult write = siemensTcpNet.WriteIntoPLC( "M102", (byte)0 );
+            if (write.IsSuccess)
+            {
+                MessageBox.Show( "停止成功！" );
+            }
+            else
+            {
+                MessageBox.Show( "停止失败：" + write.ToMessageShowString( ) );
+            }
         }
     }
 

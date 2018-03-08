@@ -42,6 +42,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.userButton1 = new HslCommunication.Controls.UserButton();
             this.listBox1 = new System.Windows.Forms.ListBox();
+            this.userButton2 = new HslCommunication.Controls.UserButton();
+            this.userButton3 = new HslCommunication.Controls.UserButton();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -188,11 +190,41 @@
             this.listBox1.Size = new System.Drawing.Size(368, 191);
             this.listBox1.TabIndex = 12;
             // 
+            // userButton2
+            // 
+            this.userButton2.BackColor = System.Drawing.Color.Transparent;
+            this.userButton2.CustomerInformation = "";
+            this.userButton2.EnableColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(190)))), ((int)(((byte)(190)))));
+            this.userButton2.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.userButton2.Location = new System.Drawing.Point(396, 52);
+            this.userButton2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.userButton2.Name = "userButton2";
+            this.userButton2.Size = new System.Drawing.Size(89, 34);
+            this.userButton2.TabIndex = 13;
+            this.userButton2.UIText = "启动运行";
+            this.userButton2.Click += new System.EventHandler(this.userButton2_Click);
+            // 
+            // userButton3
+            // 
+            this.userButton3.BackColor = System.Drawing.Color.Transparent;
+            this.userButton3.CustomerInformation = "";
+            this.userButton3.EnableColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(190)))), ((int)(((byte)(190)))));
+            this.userButton3.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.userButton3.Location = new System.Drawing.Point(491, 52);
+            this.userButton3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.userButton3.Name = "userButton3";
+            this.userButton3.Size = new System.Drawing.Size(89, 34);
+            this.userButton3.TabIndex = 14;
+            this.userButton3.UIText = "停止运行";
+            this.userButton3.Click += new System.EventHandler(this.userButton3_Click);
+            // 
             // FormServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(842, 613);
+            this.Controls.Add(this.userButton3);
+            this.Controls.Add(this.userButton2);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.userButton1);
             this.Controls.Add(this.label8);
@@ -233,6 +265,8 @@
         private System.Windows.Forms.Label label8;
         private HslCommunication.Controls.UserButton userButton1;
         private System.Windows.Forms.ListBox listBox1;
+        private HslCommunication.Controls.UserButton userButton2;
+        private HslCommunication.Controls.UserButton userButton3;
     }
 }
 
