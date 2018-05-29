@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlcReadTest", "PlcReadTest\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{C787FDE0-258A-45FE-8828-E73A24B85618}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{D9848859-2F23-4D38-BC1F-4933160ACDFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C787FDE0-258A-45FE-8828-E73A24B85618}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C787FDE0-258A-45FE-8828-E73A24B85618}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C787FDE0-258A-45FE-8828-E73A24B85618}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9848859-2F23-4D38-BC1F-4933160ACDFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9848859-2F23-4D38-BC1F-4933160ACDFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9848859-2F23-4D38-BC1F-4933160ACDFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9848859-2F23-4D38-BC1F-4933160ACDFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

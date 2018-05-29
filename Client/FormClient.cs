@@ -24,6 +24,8 @@ namespace Client
 
             userCurve1.SetLeftCurve( "A", new float[0], Color.LimeGreen );  // 新增一条实时曲线
             userCurve1.AddLeftAuxiliary( 100, Color.Tomato );               // 新增一条100度的辅助线
+
+            pushClient.CreatePush( PushCallBack );                          // 创建数据订阅器
         }
 
         private void FormClient_FormClosing(object sender, FormClosingEventArgs e)
@@ -62,10 +64,10 @@ namespace Client
             if (handle == 1)
             {
                 // 该buffer是读取到的西门子数据
-                if (isClientIni)
-                {
-                    ShowReadContent( buffer );
-                }
+                //if (isClientIni)
+                //{
+                //    ShowReadContent( buffer );
+                //}
             }
             else if(handle == 2)
             {
@@ -148,6 +150,22 @@ namespace Client
 
         #endregion
 
+        #region Push NetClient
+
+        private NetPushClient pushClient = new NetPushClient( "127.0.0.1", 23467, "A" );                          // 数据订阅器，负责订阅主要的数据
+
+        private void PushCallBack( NetPushClient pushClient, string value )
+        {
+            byte[] content = Convert.FromBase64String( value );
+
+            if (isClientIni)
+            {
+                ShowReadContent( content );
+            }
+        }
+
+        #endregion
+
         private void userButton2_Click( object sender, EventArgs e )
         {
             // 远程通知服务器启动设备 
@@ -158,7 +176,7 @@ namespace Client
             }
             else
             {
-                MessageBox.Show( "启动失败！" );
+                MessageBox.Show( "启动失败！" + operate.Message );
             }
         }
 
@@ -172,7 +190,7 @@ namespace Client
             }
             else
             {
-                MessageBox.Show( "启动失败！" );
+                MessageBox.Show( "启动失败！" + operate.Message );
             }
         }
     }
