@@ -55,6 +55,7 @@ namespace PlcReadTest
             LogNet.BeforeSaveToFile += LogNet_BeforeSaveToFile;              // 设置存储日志前的一些额外操作
             NetComplexInitialization( );                                     // 初始化网络服务
             NetSimplifyInitialization( );                                    // 初始化同步网络服务
+            NetPushServerInitialization( );
             TimerInitialization( );                                          // 定时器初始化
             SiemensTcpNetInitialization( );                                  // PLC读取初始化
         }
@@ -215,6 +216,28 @@ namespace PlcReadTest
 
         #endregion
 
+        #region 数据的订阅发布实现
+
+        /****************************************************************************************************************
+         * 
+         *    本模块主要负责进行数据的发布。只要客户端订阅了相关的数据，服务器端进行推送后，客户端就可以收到数据
+         *    
+         *    因为本订阅器目前只支持字符串的数据订阅，所以在这里需要将byts[]转化成base64编码的数据，相关的知识请自行百度，此处不再说明
+         * 
+         *****************************************************************************************************************/
+
+        private NetPushServer pushServer = null;                 // 订阅发布核心服务器
+
+        private void NetPushServerInitialization( )
+        {
+            pushServer = new NetPushServer( );
+            pushServer.LogNet = LogNet;
+            pushServer.ServerStart( 23467 );
+        }
+
+
+        #endregion
+
         #region PLC 数据读取块
 
         /***************************************************************************************************************
@@ -271,9 +294,10 @@ namespace PlcReadTest
 
                     if (read.IsSuccess)
                     {
-                        failed = 0;                                              // 读取失败次数清空
-                        netComplex.SendAllClients( 1, read.Content );            // 群发所有客户端
-                        ShowReadContent( read.Content );                         // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
+                        failed = 0;                                                              // 读取失败次数清空
+                        pushServer.PushString( "A", Convert.ToBase64String( read.Content ) );    // 推送数据，关键字为A
+                        netComplex.SendAllClients( 1, read.Content );                            // 群发所有客户端
+                        ShowReadContent( read.Content );                                         // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
 
 
                     }

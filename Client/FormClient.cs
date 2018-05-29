@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using HslCommunication.Enthernet;
+using HslCommunication.Core.Net;
 
 namespace Client
 {
@@ -50,12 +51,12 @@ namespace Client
             complexClient.ClientStart();
         }
 
-        private void ComplexClient_AcceptString(AsyncStateOne stateOne, HslCommunication.NetHandle handle, string data)
+        private void ComplexClient_AcceptString(AppSession session, HslCommunication.NetHandle handle, string data)
         {
             // 接收到服务器发送过来的字符串数据时触发
         }
 
-        private void ComplexClient_AcceptByte(AsyncStateOne stateOne, HslCommunication.NetHandle handle, byte[] buffer)
+        private void ComplexClient_AcceptByte( AppSession session, HslCommunication.NetHandle handle, byte[] buffer)
         {
             // 接收到服务器发送过来的字节数据时触发
             if (handle == 1)
