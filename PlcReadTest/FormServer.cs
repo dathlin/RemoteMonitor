@@ -7,10 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using HslCommunication.Enthernet;
-using HslCommunication.Profinet;
+using HslCommunication.Profinet.Siemens;
 using HslCommunication.LogNet;
 using Newtonsoft.Json.Linq;
 using System.Data.SqlClient;
+using HslCommunication.Core.Net;
+using System.Threading;
 
 namespace PlcReadTest
 {
@@ -38,6 +40,8 @@ namespace PlcReadTest
 
     public partial class FormServer : Form
     {
+        #region Constructor
+
         public FormServer()
         {
             InitializeComponent();
@@ -55,13 +59,23 @@ namespace PlcReadTest
             SiemensTcpNetInitialization( );                                  // PLC读取初始化
         }
 
-        
 
-
+        #endregion
 
         #region 在线网络服务端支持
 
-        private NetComplexServer netComplex;
+
+        /*****************************************************************************************************
+         * 
+         *    特别说明：在线网络的模块的代码主要是为了支持服务器对客户端在线的情况进行管理
+         *    
+         *             当客户端刚上线的时候，服务器也可以发送一些初始数据给客户端
+         * 
+         *****************************************************************************************************/
+
+
+
+        private NetComplexServer netComplex;                            // 在线网络管理核心
 
         private void NetComplexInitialization( )
         {
@@ -74,22 +88,22 @@ namespace PlcReadTest
 
         }
 
-        private void NetComplex_ClientOffline( AsyncStateOne object1, string object2 )
+        private void NetComplex_ClientOffline( AppSession session, string object2 )
         {
             // 客户端下线的时候触发方法
-            RemoveOnLine( object1.ClientUniqueID );
+            RemoveOnLine( session.ClientUniqueID );
         }
 
-        private void NetComplex_ClientOnline( AsyncStateOne object1 )
+        private void NetComplex_ClientOnline( AppSession session )
         {
             // 回发一条初始化数据的信息
-            netComplex.Send( object1, 2, GetHistory( ) );
+            netComplex.Send( session, 2, GetHistory( ) );
             // 有客户端上限时触发方法
             NetAccount account = new NetAccount( )
             {
-                Guid = object1.ClientUniqueID,
-                Ip = object1.IpAddress,
-                Name = object1.LoginAlias,
+                Guid = session.ClientUniqueID,
+                Ip = session.IpAddress,
+                Name = session.LoginAlias,
                 OnlineTime = DateTime.Now,
             };
 
@@ -99,7 +113,7 @@ namespace PlcReadTest
         
 
 
-        private void NetComplex_AcceptString(AsyncStateOne stateone, HslCommunication.NetHandle handle, string data)
+        private void NetComplex_AcceptString( AppSession stateone, HslCommunication.NetHandle handle, string data)
         {
             // 接收到客户端发来的数据时触发
 
@@ -109,6 +123,14 @@ namespace PlcReadTest
         #endregion
 
         #region 同步网络服务器支持
+
+        /*****************************************************************************************************
+         * 
+         *    特别说明：同步网络模块，用来支持远程的写入操作，特点是支持是否成功的反馈，这个信号对客户端来说是至关重要的
+         *    
+         *             不仅仅支持客户端的操作，还支持web端的操作。
+         * 
+         *****************************************************************************************************/
 
         private NetSimplifyServer netSimplify;                                     // 同步网络访问的服务支持
 
@@ -120,23 +142,23 @@ namespace PlcReadTest
             netSimplify.ServerStart( 23457 );                                      // 启动服务
         }
 
-        private void NetSimplify_ReceiveStringEvent( AsyncStateOne state, HslCommunication.NetHandle handle, string msg )
+        private void NetSimplify_ReceiveStringEvent( AppSession session, HslCommunication.NetHandle handle, string msg )
         {
             if (handle == 1)
             {
                 // 远程启动设备
-                string back = siemensTcpNet.WriteIntoPLC( "M102", (byte)1 ).IsSuccess ? "成功启动" : "失败启动";
-                netSimplify.SendMessage( state, handle, back );
+                string back = siemensTcpNet.Write( "M102", (byte)1 ).IsSuccess ? "成功启动" : "失败启动";
+                netSimplify.SendMessage( session, handle, back );
             }
             else if (handle == 2)
             {
                 // 远程停止设备
-                string back = siemensTcpNet.WriteIntoPLC( "M102", (byte)0 ).IsSuccess ? "成功停止" : "失败停止";
-                netSimplify.SendMessage( state, handle, back );
+                string back = siemensTcpNet.Write( "M102", (byte)0 ).IsSuccess ? "成功停止" : "失败停止";
+                netSimplify.SendMessage( session, handle, back );
             }
             else
             {
-                netSimplify.SendMessage( state, handle, msg );
+                netSimplify.SendMessage( session, handle, msg );
             }
         }
 
@@ -195,21 +217,30 @@ namespace PlcReadTest
 
         #region PLC 数据读取块
 
-        private SiemensTcpNet siemensTcpNet;                                               // 西门子的网络访问器
+        /***************************************************************************************************************
+         * 
+         *    以下演示了西门子的读取类，对于三菱和欧姆龙，或是modbustcp来说，逻辑都是一样的，你也可以尝试着换成三菱的类，来加深理解
+         * 
+         *****************************************************************************************************************/
+
+
+        private SiemensS7Net siemensTcpNet;                                                // 西门子的网络访问器
         private bool isReadingPlc = false;                                                 // 是否启动的标志，可以用来暂停项目
         private int failed = 0;                                                            // 连续失败此处，连续三次失败就报警
+        private Thread threadReadPlc = null;                                               // 后台读取PLC的线程
 
         private void SiemensTcpNetInitialization()
         {
-            siemensTcpNet = new SiemensTcpNet(SiemensPLCS.S1200);                          // 实例化西门子的对象
-            siemensTcpNet.PLCIpAddress = System.Net.IPAddress.Parse("192.168.1.195");      // 设置IP地址
+            siemensTcpNet = new SiemensS7Net( SiemensPLCS.S1200);                          // 实例化西门子的对象
+            siemensTcpNet.IpAddress = "192.168.1.195";                                     // 设置IP地址
             siemensTcpNet.LogNet = LogNet;                                                 // 设置统一的日志记录器
-            siemensTcpNet.ConnectTimeout = 1000;                                           // 超时时间为1秒
+            siemensTcpNet.ConnectTimeOut = 1000;                                           // 超时时间为1秒
 
             // 启动后台读取的线程
-            System.Threading.Thread thread = new System.Threading.Thread(new System.Threading.ThreadStart(ThreadBackgroundReadPlc));
-            thread.IsBackground = true;
-            thread.Start();
+            threadReadPlc = new Thread(new System.Threading.ThreadStart(ThreadBackgroundReadPlc));
+            threadReadPlc.IsBackground = true;
+            threadReadPlc.Priority = ThreadPriority.AboveNormal;
+            threadReadPlc.Start();
         }
 
 
@@ -236,7 +267,7 @@ namespace PlcReadTest
                     // 事实上你也可以改成三菱的，无非解析数据的方式不一致而已，其他数据推送代码都是一样的
 
 
-                    HslCommunication.OperateResult<byte[]> read = siemensTcpNet.ReadFromPLC( "M100", 7 );
+                    HslCommunication.OperateResult<byte[]> read = siemensTcpNet.Read( "M100", 7 );
 
                     if (read.IsSuccess)
                     {
@@ -253,7 +284,7 @@ namespace PlcReadTest
                     }
                 }
 
-                System.Threading.Thread.Sleep( 500 );                            // 两次读取的时间间隔
+                Thread.Sleep( 500 );                            // 两次读取的时间间隔
             }
         }
 
@@ -281,9 +312,9 @@ namespace PlcReadTest
             }
 
             // 提取数据
-            double temp1 = siemensTcpNet.GetShortFromBytes(content, 0) / 10.0;
+            double temp1 = siemensTcpNet.ByteTransform.TransInt16(content, 0) / 10.0;
             bool machineEnable = content[2] != 0x00;
-            int product = siemensTcpNet.GetIntFromBytes(content, 3);
+            int product = siemensTcpNet.ByteTransform.TransInt32( content, 3);
 
 
             // 实际项目的时候应该在此处进行将数据存储到数据库，你可以选择MySql,SQL SERVER,ORACLE等等
@@ -315,12 +346,12 @@ namespace PlcReadTest
          *********************************************************************************************/
          
 
-        private Timer timer = null;
+        private System.Windows.Forms.Timer timer = null;
         private bool m_isRedBackColor = false;
 
         private void TimerInitialization()
         {
-            timer = new Timer();
+            timer = new System.Windows.Forms.Timer();
             timer.Interval = 1000;
             timer.Tick += Timer_Tick;
             timer.Start();
@@ -383,7 +414,7 @@ namespace PlcReadTest
 
         #region 温度数据缓存
 
-        private float[] arrayTemp = new float[0];                  // 缓存1000个长度的数据
+        private float[] arrayTemp = new float[0];                     // 缓存1000个长度的数据
         private HslCommunication.Core.SimpleHybirdLock hybirdLock;    // 数据操作的锁
 
         private void AddDataHistory(float value)
@@ -466,7 +497,7 @@ namespace PlcReadTest
         private void userButton2_Click( object sender, EventArgs e )
         {
             // 启动运行，修改M102为1
-            HslCommunication.OperateResult write = siemensTcpNet.WriteIntoPLC( "M102", (byte)1 );
+            HslCommunication.OperateResult write = siemensTcpNet.Write( "M102", (byte)1 );
             if(write.IsSuccess)
             {
                 MessageBox.Show( "启动成功！" );
@@ -480,7 +511,7 @@ namespace PlcReadTest
         private void userButton3_Click( object sender, EventArgs e )
         {
             // 停止运行，修改M102为0
-            HslCommunication.OperateResult write = siemensTcpNet.WriteIntoPLC( "M102", (byte)0 );
+            HslCommunication.OperateResult write = siemensTcpNet.Write( "M102", (byte)0 );
             if (write.IsSuccess)
             {
                 MessageBox.Show( "停止成功！" );
