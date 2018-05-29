@@ -2,30 +2,211 @@
     ViewBag.Title = "Home Page";
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+
 
 <div class="row">
     <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+        <div class="panel panel-default">
+            <div class="panel-heading">温度</div>
+            <div class="panel-body" id="temp">
+                0
+            </div>
+        </div>
     </div>
     <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+        <div class="panel panel-default">
+            <div class="panel-heading">使能</div>
+            <div class="panel-body" id="enable">
+                暂停中
+            </div>
+        </div>
     </div>
     <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+        <div class="panel panel-default">
+            <div class="panel-heading">产量</div>
+            <div class="panel-body" id="product">
+                0
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div id="test1" style="height:400px">
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div id="test2" style="height:400px">
+        </div>
     </div>
 </div>
+<div>
+    <!-- Indicates a successful or positive action -->
+    <button type="button" class="btn btn-success" id="startPlc"> 启动PLC </button>
+
+    <!-- Indicates caution should be taken with this action -->
+    <button type="button" class="btn btn-warning" id="stopPlc"> 停止PLC </button>
+
+
+</div>
+
+
+
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.2.3.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script src="~/Scripts/echarts.min.js"></script>
+    <script>
+        var date = [];
+        var temp = [];
+
+        for (var i = 0; i < 100; i++) {
+            date.push('');
+            temp.push(0);
+        }
+
+        option1 = {
+            title: {
+                text: '动态数据 + 时间坐标轴'
+            },
+            legend: {    //图表上方的类别显示               
+                show: true,
+                data: ['温度（℃）']
+            },
+            color: [
+                '#FF3333'
+            ],
+            tooltip: {
+                trigger: 'axis',
+                formatter: '{b0}<br/><font color=#FF3333>&nbsp;●&nbsp;</font>{a0} : {c0} ℃ ',
+                axisPointer: {
+                    animation: false
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data:[]
+            },
+            yAxis: 
+            [    //Y轴（这里我设置了两个Y轴，左右各一个）
+                {
+                    //第一个（左边）Y轴，yAxisIndex为0
+                    type: 'value',
+                    name: '温度',
+                    max: 200,
+                    min: 0, 
+                    axisLabel: {
+                        formatter: '{value} ℃'    //控制输出格式
+                    }
+                },
+                {
+                    //第二个（右边）Y轴，yAxisIndex为1
+                    type: 'value',
+                    name: '温度',
+                    max: 200,
+                    min: 0,
+                    axisLabel: {
+                        formatter: '{value} ℃'    //控制输出格式
+                    }
+                }
+            ],
+            series: [{
+                name: '温度数据',
+                type: 'line',
+                symbol: 'emptycircle',    //设置折线图中表示每个坐标点的符号；emptycircle：空心圆；emptyrect：空心矩形；circle：实心圆；emptydiamond：菱形                        
+                data: []        //数据值通过Ajax动态获取
+            }]
+        };
+
+        option2 = {
+            tooltip: {
+                formatter: "{a} <br/>{b} : {c}%"
+            },
+            toolbox: {
+                feature: {
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            series: [
+                {
+                    name: '车间温度',
+                    min: 0,
+                    max: 200,
+                    type: 'gauge',
+                    detail: { formatter: '{value}℃' },
+                    data: [{ value: 50, name: '温度' }]
+                }
+            ]
+        };
+
+
+        myChart1 = echarts.init(document.getElementById('test1'));
+        myChart1.setOption(option1);
+
+        myChart2 = echarts.init(document.getElementById('test2'));
+        myChart2.setOption(option2);
+
+
+
+        $(function () {
+            var mypush = $.connection.myHub;
+            mypush.client.sendData = function (json) {
+                console.log(json);
+                $("#temp").text(json.temp);
+                if (json.enable) {
+                    $("#enable").text('运行中');
+                    $("#enable").css("background-color", "#32CD32");
+                }
+                else {
+                    $("#enable").text('停机中');
+                    $("#enable").css("background-color", "#FFFFFF");
+                }
+                $("#product").text(json.product);
+
+                now = new Date();
+                date.shift();
+                date.push(now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds());
+                temp.shift();
+                temp.push(json.temp);
+
+                myChart1.setOption({        //载入数据
+                    xAxis: {
+                        data: date    //填入X轴数据
+                    },
+                    series: [ 
+                        {
+                            name: '温度',
+                            data: temp
+                        },
+                    ]
+                });
+
+                option2.series[0].data[0].value = json.temp;
+                myChart2.setOption(option2, true);
+
+            };
+
+            $.connection.hub.start();
+        });
+
+        $(function () {
+            //按钮单击时执行
+            $("#startPlc").click(function () {
+                //取Ajax返回结果
+                //为了简单，这里简单地从文件中读取内容作为返回数据
+                htmlobj = $.ajax({ type: "POST",url: "/Home/StartPlc/", async: false });
+                //显示Ajax返回结果
+                alert(htmlobj.responseText);
+            });
+
+            $("#stopPlc").click(function () {
+                //取Ajax返回结果
+                //为了简单，这里简单地从文件中读取内容作为返回数据
+                htmlobj = $.ajax({ type: "POST", url: "/Home/StopPlc/", async: false });
+                //显示Ajax返回结果
+                alert(htmlobj.responseText);
+            });
+        });
+    </script>
+}

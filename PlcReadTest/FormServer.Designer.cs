@@ -44,6 +44,7 @@
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.userButton2 = new HslCommunication.Controls.UserButton();
             this.userButton3 = new HslCommunication.Controls.UserButton();
+            this.启动模拟读写ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -129,7 +130,8 @@
             this.menuStrip1.Font = new System.Drawing.Font("Microsoft YaHei UI", 15F);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.系统设置ToolStripMenuItem,
-            this.关于ToolStripMenuItem});
+            this.关于ToolStripMenuItem,
+            this.启动模拟读写ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 3, 0, 3);
@@ -218,6 +220,13 @@
             this.userButton3.UIText = "停止运行";
             this.userButton3.Click += new System.EventHandler(this.userButton3_Click);
             // 
+            // 启动模拟读写ToolStripMenuItem
+            // 
+            this.启动模拟读写ToolStripMenuItem.Name = "启动模拟读写ToolStripMenuItem";
+            this.启动模拟读写ToolStripMenuItem.Size = new System.Drawing.Size(144, 31);
+            this.启动模拟读写ToolStripMenuItem.Text = "启动模拟读写";
+            this.启动模拟读写ToolStripMenuItem.Click += new System.EventHandler(this.启动模拟读写ToolStripMenuItem_Click);
+            // 
             // FormServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -267,6 +276,7 @@
         private System.Windows.Forms.ListBox listBox1;
         private HslCommunication.Controls.UserButton userButton2;
         private HslCommunication.Controls.UserButton userButton3;
+        private System.Windows.Forms.ToolStripMenuItem 启动模拟读写ToolStripMenuItem;
     }
 }
 

@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using HslCommunication.Enthernet;
 using HslCommunication.Core.Net;
+using Newtonsoft.Json.Linq;
 
 namespace Client
 {
@@ -30,6 +31,7 @@ namespace Client
 
         private void FormClient_FormClosing(object sender, FormClosingEventArgs e)
         {
+            pushClient?.ClosePush( );
             complexClient?.ClientClose();
 
             System.Threading.Thread.Sleep( 100 );
@@ -81,31 +83,28 @@ namespace Client
 
         #endregion
         
-        #region MyRegion
+        #region 显示结果
 
         // 接收到服务器传送过来的数据后需要对数据进行解析显示
-        private void ShowReadContent(byte[] content)
+        private void ShowReadContent(JObject content)
         {
             if (InvokeRequired && !IsDisposed)
             {
-                Invoke(new Action<byte[]>(ShowReadContent), content);
+                try
+                {
+                    Invoke( new Action<JObject>( ShowReadContent ), content );
+                }
+                catch
+                {
+
+                }
                 return;
             }
 
-            byte[] buffer1 = new byte[2];
-            buffer1[0] = content[1];
-            buffer1[1] = content[0];
-
-            byte[] buffer2 = new byte[4];
-            buffer2[0] = content[6];
-            buffer2[1] = content[5];
-            buffer2[2] = content[4];
-            buffer2[3] = content[3];
-
-
-            float temp1 = BitConverter.ToInt16(buffer1, 0) / 10.0f;
-            bool machineEnable = content[2] != 0x00;
-            int product = BitConverter.ToInt32(buffer2, 0);
+            double temp1 = content["temp"].ToObject<double>( );           // 温度
+            bool machineEnable = content["enable"].ToObject<bool>( );     // 设备使能
+            int product = content["product"].ToObject<int>( );            // 产量数据
+           
 
             label2.Text = temp1.ToString();
 
@@ -119,7 +118,7 @@ namespace Client
             userGaugeChart1.Value = Math.Round( temp1, 1 );
 
             // 添加实时的数据曲线
-            userCurve1.AddCurveData( "A", temp1 );
+            userCurve1.AddCurveData( "A", (float)temp1 );
         }
         
         
@@ -156,7 +155,7 @@ namespace Client
 
         private void PushCallBack( NetPushClient pushClient, string value )
         {
-            byte[] content = Convert.FromBase64String( value );
+            JObject content = JObject.Parse( value );
 
             if (isClientIni)
             {

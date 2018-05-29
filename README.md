@@ -12,13 +12,31 @@
 * 服务器支持强制启动停止
 * 客户端支持远程强制启动停止
 * 客户端演示了曲线显示及仪表盘控件的使用
+* 提供了一个web版本的实时监控界面
+* 支持从浏览器进行远程启动或是停止设备
+* 支持没有任何设备情况下的虚拟读取（数据随机）
 
 测试读取为西门子PLC，客户端的程序可以部署在局域网下其他的任何windows电脑，修改下连接的服务器IP地址，就可以实现远程同步实时监视效果，测试图片如下：
 
+#### 服务器端的图片
 ![server](https://github.com/dathlin/RemoteMonitor/raw/master/img/server1.png)
 
+#### winform客户端
 ![client](https://github.com/dathlin/RemoteMonitor/raw/master/img/Client1.png)
 
+#### web界面
+![client](https://github.com/dathlin/RemoteMonitor/raw/master/img/web.png)
+
+#### 所有同时打开界面
+![all](https://github.com/dathlin/RemoteMonitor/raw/master/img/all.png)
+
+
+## web端技术说明
+* 数据订阅推送功能，从服务器订阅 采用了 **HslCommunication** 组件的订阅实现
+* 数据推送给浏览器客户端，采用了 **SignalR** 技术实现
+* 数据图表的显示，采用了百度开源的 **ECharts** 实现仪表盘和曲线显示
+* 按钮的点击采用 **jQuery Ajax** 实现，在当前的页面直接返回是否成功
+* web端后台的启动停止PLC操作，采用了 **HslCommunication** 组件的网络功能实现
 
 如果需要客户端支持更高级的内容账户登录，版本控制，消息群发，权限控制等等功能，可以参考下面的项目：
 

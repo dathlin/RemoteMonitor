@@ -42,9 +42,9 @@ namespace PlcReadTest
     {
         #region Constructor
 
-        public FormServer()
+        public FormServer( )
         {
-            InitializeComponent();
+            InitializeComponent( );
 
             hybirdLock = new HslCommunication.Core.SimpleHybirdLock( );      // 锁的实例化
         }
@@ -111,10 +111,10 @@ namespace PlcReadTest
             AddOnLine( account );
         }
 
-        
 
 
-        private void NetComplex_AcceptString( AppSession stateone, HslCommunication.NetHandle handle, string data)
+
+        private void NetComplex_AcceptString( AppSession stateone, HslCommunication.NetHandle handle, string data )
         {
             // 接收到客户端发来的数据时触发
 
@@ -147,15 +147,17 @@ namespace PlcReadTest
         {
             if (handle == 1)
             {
+                string tmp = StartPLC( );
+                LogNet?.WriteInfo( tmp );
                 // 远程启动设备
-                string back = siemensTcpNet.Write( "M102", (byte)1 ).IsSuccess ? "成功启动" : "失败启动";
-                netSimplify.SendMessage( session, handle, back );
+                netSimplify.SendMessage( session, handle, tmp );
             }
             else if (handle == 2)
             {
+                string tmp = StopPLC( );
+                LogNet?.WriteInfo( tmp );
                 // 远程停止设备
-                string back = siemensTcpNet.Write( "M102", (byte)0 ).IsSuccess ? "成功停止" : "失败停止";
-                netSimplify.SendMessage( session, handle, back );
+                netSimplify.SendMessage( session, handle, tmp );
             }
             else
             {
@@ -252,20 +254,22 @@ namespace PlcReadTest
         private int failed = 0;                                                            // 连续失败此处，连续三次失败就报警
         private Thread threadReadPlc = null;                                               // 后台读取PLC的线程
 
-        private void SiemensTcpNetInitialization()
+        private void SiemensTcpNetInitialization( )
         {
-            siemensTcpNet = new SiemensS7Net( SiemensPLCS.S1200);                          // 实例化西门子的对象
+            siemensTcpNet = new SiemensS7Net( SiemensPLCS.S1200 );                          // 实例化西门子的对象
             siemensTcpNet.IpAddress = "192.168.1.195";                                     // 设置IP地址
             siemensTcpNet.LogNet = LogNet;                                                 // 设置统一的日志记录器
             siemensTcpNet.ConnectTimeOut = 1000;                                           // 超时时间为1秒
 
             // 启动后台读取的线程
-            threadReadPlc = new Thread(new System.Threading.ThreadStart(ThreadBackgroundReadPlc));
+            threadReadPlc = new Thread( new System.Threading.ThreadStart( ThreadBackgroundReadPlc ) );
             threadReadPlc.IsBackground = true;
             threadReadPlc.Priority = ThreadPriority.AboveNormal;
-            threadReadPlc.Start();
+            threadReadPlc.Start( );
         }
 
+        private Random random = new Random( );
+        private bool isReadRandom = false;
 
         private void ThreadBackgroundReadPlc( )
         {
@@ -290,13 +294,46 @@ namespace PlcReadTest
                     // 事实上你也可以改成三菱的，无非解析数据的方式不一致而已，其他数据推送代码都是一样的
 
 
-                    HslCommunication.OperateResult<byte[]> read = siemensTcpNet.Read( "M100", 7 );
+
+                    HslCommunication.OperateResult<JObject> read = null; //siemensTcpNet.Read( "M100", 7 );
+
+                    if (isReadRandom)
+                    {
+                        // 当没有测试的设备的时候，此处就演示读取随机数的情况
+                        read = HslCommunication.OperateResult.CreateSuccessResult( new JObject( )
+                        {
+                            {"temp",new JValue(random.Next(2000)/10d) },
+                            {"enable",new JValue(random.Next(100)>10) },
+                            {"product",new JValue(random.Next(10000)) }
+                        } );
+                }
+                    else
+                    {
+                        HslCommunication.OperateResult<byte[]> tmp = siemensTcpNet.Read( "M100", 7 );
+                        if(tmp.IsSuccess)
+                        {
+                            double temp1 = siemensTcpNet.ByteTransform.TransInt16( tmp.Content, 0 ) / 10.0;
+                            bool machineEnable = tmp.Content[2] != 0x00;
+                            int product = siemensTcpNet.ByteTransform.TransInt32( tmp.Content, 3 );
+
+                            read = HslCommunication.OperateResult.CreateSuccessResult( new JObject( )
+                            {
+                                {"temp",new JValue(temp1) },
+                                {"enable",new JValue(machineEnable) },
+                                {"product",new JValue(product) }
+                            } );
+                        }
+                        else
+                        {
+                            read = HslCommunication.OperateResult.CreateFailedResult<JObject>( tmp );
+                        }
+                    }
+
 
                     if (read.IsSuccess)
                     {
                         failed = 0;                                                              // 读取失败次数清空
-                        pushServer.PushString( "A", Convert.ToBase64String( read.Content ) );    // 推送数据，关键字为A
-                        netComplex.SendAllClients( 1, read.Content );                            // 群发所有客户端
+                        pushServer.PushString( "A", read.Content.ToString() );    // 推送数据，关键字为A
                         ShowReadContent( read.Content );                                         // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
 
 
@@ -325,20 +362,20 @@ namespace PlcReadTest
         }
 
         // 读取成功时，显示结果数据
-        private void ShowReadContent(byte[] content)
+        private void ShowReadContent(JObject content)
         {
             // 本方法是考虑了后台线程调用的情况
             if(InvokeRequired)
             {
                 // 如果是后台调用显示UI，那么就使用委托来切换到前台显示
-                Invoke(new Action<byte[]>(ShowReadContent), content);
+                Invoke(new Action<JObject>(ShowReadContent), content);
                 return;
             }
 
             // 提取数据
-            double temp1 = siemensTcpNet.ByteTransform.TransInt16(content, 0) / 10.0;
-            bool machineEnable = content[2] != 0x00;
-            int product = siemensTcpNet.ByteTransform.TransInt32( content, 3);
+            double temp1 = content["temp"].ToObject<double>( );
+            bool machineEnable = content["enable"].ToObject<bool>( );
+            int product = content["product"].ToObject<int>( );
 
 
             // 实际项目的时候应该在此处进行将数据存储到数据库，你可以选择MySql,SQL SERVER,ORACLE等等
@@ -354,10 +391,30 @@ namespace PlcReadTest
 
             label5.Text = machineEnable ? "运行中" : "未启动";
         }
-        
+
 
         #endregion
-        
+
+        #region PLC 启动逻辑块
+
+        private string StartPLC()
+        {
+            if (isReadRandom) return "启动成功";   // 测试模式专用
+
+            HslCommunication.OperateResult write = siemensTcpNet.Write( "M102", (byte)1 );
+            return write.IsSuccess ? "成功启动" : "启动失败:" + write.Message;
+        }
+
+        private string StopPLC( )
+        {
+            if (isReadRandom) return "停止成功"; // 测试模式专用
+
+            HslCommunication.OperateResult write = siemensTcpNet.Write( "M102", (byte)0 );
+            return write.IsSuccess ? "成功停止" : "停止失败:" + write.Message;
+        }
+
+        #endregion
+
         #region 定时器块
 
 
@@ -368,7 +425,7 @@ namespace PlcReadTest
          *    重新连接上时，就显示信号成功。
          * 
          *********************************************************************************************/
-         
+
 
         private System.Windows.Forms.Timer timer = null;
         private bool m_isRedBackColor = false;
@@ -521,28 +578,26 @@ namespace PlcReadTest
         private void userButton2_Click( object sender, EventArgs e )
         {
             // 启动运行，修改M102为1
-            HslCommunication.OperateResult write = siemensTcpNet.Write( "M102", (byte)1 );
-            if(write.IsSuccess)
-            {
-                MessageBox.Show( "启动成功！" );
-            }
-            else
-            {
-                MessageBox.Show( "启动失败：" + write.ToMessageShowString( ) );
-            }
+            MessageBox.Show( StartPLC( ) );
         }
 
         private void userButton3_Click( object sender, EventArgs e )
         {
             // 停止运行，修改M102为0
-            HslCommunication.OperateResult write = siemensTcpNet.Write( "M102", (byte)0 );
-            if (write.IsSuccess)
+            MessageBox.Show( StopPLC( ) );
+        }
+
+        private void 启动模拟读写ToolStripMenuItem_Click( object sender, EventArgs e )
+        {
+            if(isReadRandom)
             {
-                MessageBox.Show( "停止成功！" );
+                isReadRandom = false;
+                启动模拟读写ToolStripMenuItem.BackColor = Color.Transparent;
             }
             else
             {
-                MessageBox.Show( "停止失败：" + write.ToMessageShowString( ) );
+                isReadRandom = true;
+                启动模拟读写ToolStripMenuItem.BackColor = Color.Orchid;
             }
         }
     }
