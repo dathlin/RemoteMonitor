@@ -46,8 +46,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HslCommunication, Version=5.0.10.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HslCommunication.5.0.10\lib\net35\HslCommunication.dll</HintPath>
+    <Reference Include="HslCommunication, Version=5.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HslCommunication.5.1.1\lib\net35\HslCommunication.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.3\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
