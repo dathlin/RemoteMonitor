@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private NetPushClient netPushClient = new NetPushClient("192.168.1.110", 23467, "A");
     private NetSimplifyClient netSimplifyClient = new NetSimplifyClient("192.168.1.110", 23457);
-    private int[] dataArray = new int[80];
+    private float[] dataArray = new float[80];
     private MyHandler myHandler;
 
     @Override
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                         for(int i=0;i<dataArray.length-1;i++){
                             dataArray[i] = dataArray[i+1];
                         }
-                        dataArray[dataArray.length - 1]=product;
+                        dataArray[dataArray.length - 1]=(float) value;
                         DataPoint[] dataPoints = new DataPoint[80];
                         for(int i=0;i<dataArray.length;i++){
                             dataPoints[i] = new DataPoint(i,dataArray[i]);
