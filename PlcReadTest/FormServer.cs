@@ -331,7 +331,7 @@ namespace PlcReadTest
 
 
                     if (read.IsSuccess)
-                    {
+                    { 
                         failed = 0;                                                              // 读取失败次数清空
                         pushServer.PushString( "A", read.Content.ToString() );    // 推送数据，关键字为A
                         ShowReadContent( read.Content );                                         // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
