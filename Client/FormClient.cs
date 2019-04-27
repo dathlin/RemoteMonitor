@@ -23,8 +23,8 @@ namespace Client
         {
             NetComplexInitialization();
 
-            userCurve1.SetLeftCurve( "A", new float[0], Color.LimeGreen );  // 新增一条实时曲线
-            userCurve1.AddLeftAuxiliary( 100, Color.Tomato );               // 新增一条100度的辅助线
+            hslCurve1.SetLeftCurve( "温度", new float[0], Color.LimeGreen );   // 新增一条实时曲线
+            hslCurve1.AddLeftAuxiliary( 100, Color.Tomato );                // 新增一条100度的辅助线
 
             pushClient.CreatePush( PushCallBack );                          // 创建数据订阅器
         }
@@ -106,19 +106,22 @@ namespace Client
             int product = content["product"].ToObject<int>( );            // 产量数据
            
 
-            label2.Text = temp1.ToString();
+            hslLedDisplay1.DisplayText = temp1.ToString();
 
             // 如果温度超100℃就把背景改为红色
-            label2.BackColor = temp1 > 100d ? Color.Tomato : Color.Transparent;
+            hslLedDisplay1.ForeColor = temp1 > 100d ? Color.Tomato : Color.Lime;
             label3.Text = product.ToString();
 
             label5.Text = machineEnable ? "运行中" : "未启动";
 
             // 添加仪表盘显示
-            userGaugeChart1.Value = Math.Round( temp1, 1 );
+            hslGauge1.Value = (float)Math.Round( temp1, 1 );
+
+            // 添加温度控件显示
+            hslThermometer1.Value = (float)Math.Round( temp1, 1 );
 
             // 添加实时的数据曲线
-            userCurve1.AddCurveData( "A", (float)temp1 );
+            hslCurve1.AddCurveData( "温度", (float)temp1 );
         }
         
         
@@ -136,7 +139,7 @@ namespace Client
                 value[i] = BitConverter.ToSingle( content, i * 4 );
             }
 
-            userCurve1.AddCurveData( "A", value );
+            hslCurve1.AddCurveData( "温度", value );
 
         }
 

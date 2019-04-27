@@ -32,12 +32,13 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.userCurve1 = new HslCommunication.Controls.UserCurve();
-            this.userGaugeChart1 = new HslCommunication.Controls.UserGaugeChart();
             this.userButton3 = new HslCommunication.Controls.UserButton();
             this.userButton2 = new HslCommunication.Controls.UserButton();
+            this.hslCurve1 = new HslControls.HslCurve();
+            this.hslGauge1 = new HslControls.HslGauge();
+            this.hslThermometer1 = new HslControls.HslThermometer();
+            this.hslLedDisplay1 = new HslControls.HslLedDisplay();
             this.SuspendLayout();
             // 
             // label5
@@ -82,17 +83,6 @@
             this.label4.TabIndex = 10;
             this.label4.Text = "产量：";
             // 
-            // label2
-            // 
-            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Font = new System.Drawing.Font("微软雅黑", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(120, 77);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(271, 41);
-            this.label2.TabIndex = 9;
-            this.label2.Text = "0";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -103,40 +93,13 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "温度：";
             // 
-            // userCurve1
-            // 
-            this.userCurve1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
-            this.userCurve1.ColorDashLines = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.userCurve1.ColorLinesAndText = System.Drawing.Color.Gray;
-            this.userCurve1.Location = new System.Drawing.Point(12, 256);
-            this.userCurve1.Name = "userCurve1";
-            this.userCurve1.Size = new System.Drawing.Size(800, 342);
-            this.userCurve1.TabIndex = 16;
-            this.userCurve1.ValueMaxLeft = 200F;
-            this.userCurve1.ValueMaxRight = 200F;
-            this.userCurve1.ValueSegment = 10;
-            // 
-            // userGaugeChart1
-            // 
-            this.userGaugeChart1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
-            this.userGaugeChart1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.userGaugeChart1.Location = new System.Drawing.Point(422, 19);
-            this.userGaugeChart1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.userGaugeChart1.Name = "userGaugeChart1";
-            this.userGaugeChart1.PointerColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.userGaugeChart1.Size = new System.Drawing.Size(359, 148);
-            this.userGaugeChart1.TabIndex = 17;
-            this.userGaugeChart1.ValueAlarmMax = 100D;
-            this.userGaugeChart1.ValueAlarmMin = 0D;
-            this.userGaugeChart1.ValueMax = 200D;
-            // 
             // userButton3
             // 
             this.userButton3.BackColor = System.Drawing.Color.Transparent;
             this.userButton3.CustomerInformation = "";
             this.userButton3.EnableColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(190)))), ((int)(((byte)(190)))));
             this.userButton3.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.userButton3.Location = new System.Drawing.Point(107, 197);
+            this.userButton3.Location = new System.Drawing.Point(120, 197);
             this.userButton3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.userButton3.Name = "userButton3";
             this.userButton3.Size = new System.Drawing.Size(89, 34);
@@ -150,7 +113,7 @@
             this.userButton2.CustomerInformation = "";
             this.userButton2.EnableColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(190)))), ((int)(((byte)(190)))));
             this.userButton2.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.userButton2.Location = new System.Drawing.Point(12, 197);
+            this.userButton2.Location = new System.Drawing.Point(23, 197);
             this.userButton2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.userButton2.Name = "userButton2";
             this.userButton2.Size = new System.Drawing.Size(89, 34);
@@ -158,20 +121,69 @@
             this.userButton2.UIText = "启动运行";
             this.userButton2.Click += new System.EventHandler(this.userButton2_Click);
             // 
+            // hslCurve1
+            // 
+            this.hslCurve1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
+            this.hslCurve1.IsRenderRightCoordinate = false;
+            this.hslCurve1.Location = new System.Drawing.Point(19, 264);
+            this.hslCurve1.Name = "hslCurve1";
+            this.hslCurve1.Size = new System.Drawing.Size(699, 322);
+            this.hslCurve1.TabIndex = 20;
+            this.hslCurve1.TextAddFormat = "HH:mm:ss";
+            this.hslCurve1.ValueMaxLeft = 200F;
+            this.hslCurve1.ValueMaxRight = 200F;
+            // 
+            // hslGauge1
+            // 
+            this.hslGauge1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(36)))));
+            this.hslGauge1.ForeColor = System.Drawing.Color.Gray;
+            this.hslGauge1.IsBigSemiCircle = true;
+            this.hslGauge1.Location = new System.Drawing.Point(429, 19);
+            this.hslGauge1.Name = "hslGauge1";
+            this.hslGauge1.Size = new System.Drawing.Size(235, 213);
+            this.hslGauge1.TabIndex = 21;
+            this.hslGauge1.UnitText = "℃";
+            this.hslGauge1.ValueAlarmMax = 160F;
+            this.hslGauge1.ValueMax = 200F;
+            // 
+            // hslThermometer1
+            // 
+            this.hslThermometer1.Location = new System.Drawing.Point(717, 12);
+            this.hslThermometer1.Name = "hslThermometer1";
+            this.hslThermometer1.SegmentCount = 10;
+            this.hslThermometer1.Size = new System.Drawing.Size(118, 585);
+            this.hslThermometer1.TabIndex = 22;
+            this.hslThermometer1.TemperatureBackColor = System.Drawing.Color.LightGray;
+            this.hslThermometer1.ValueMax = 200F;
+            this.hslThermometer1.ValueStart = 0F;
+            // 
+            // hslLedDisplay1
+            // 
+            this.hslLedDisplay1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(46)))), ((int)(((byte)(46)))));
+            this.hslLedDisplay1.DisplayBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(62)))), ((int)(((byte)(62)))));
+            this.hslLedDisplay1.DisplayNumber = 10;
+            this.hslLedDisplay1.DisplayText = "0";
+            this.hslLedDisplay1.LedNumberSize = 4;
+            this.hslLedDisplay1.Location = new System.Drawing.Point(120, 77);
+            this.hslLedDisplay1.Name = "hslLedDisplay1";
+            this.hslLedDisplay1.Size = new System.Drawing.Size(271, 41);
+            this.hslLedDisplay1.TabIndex = 23;
+            // 
             // FormClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(835, 610);
+            this.Controls.Add(this.hslLedDisplay1);
+            this.Controls.Add(this.hslThermometer1);
+            this.Controls.Add(this.hslGauge1);
+            this.Controls.Add(this.hslCurve1);
             this.Controls.Add(this.userButton3);
             this.Controls.Add(this.userButton2);
-            this.Controls.Add(this.userGaugeChart1);
-            this.Controls.Add(this.userCurve1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "FormClient";
             this.Text = "客户端界面";
@@ -188,12 +200,13 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private HslCommunication.Controls.UserCurve userCurve1;
-        private HslCommunication.Controls.UserGaugeChart userGaugeChart1;
         private HslCommunication.Controls.UserButton userButton3;
         private HslCommunication.Controls.UserButton userButton2;
+        private HslControls.HslCurve hslCurve1;
+        private HslControls.HslGauge hslGauge1;
+        private HslControls.HslThermometer hslThermometer1;
+        private HslControls.HslLedDisplay hslLedDisplay1;
     }
 }
 

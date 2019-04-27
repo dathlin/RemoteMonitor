@@ -1,7 +1,7 @@
 # RemoteMonitor
 本项目是一个利用HslCommunication组件读取PLC的示例项目，演示了后台从PLC循环读取到前台显示，并推送给在线客户端，客户端同步显示并画实时曲线图。
 
-[![NetFramework](https://img.shields.io/badge/Language-C%23%207.0-orange.svg)](https://blogs.msdn.microsoft.com/dotnet/2016/08/24/whats-new-in-csharp-7-0/) [![Visual Studio](https://img.shields.io/badge/Visual%20Studio-2017-red.svg)](https://www.visualstudio.com/zh-hans/) ![License status](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![NetFramework](https://img.shields.io/badge/Language-C%23%207.0-orange.svg)](https://blogs.msdn.microsoft.com/dotnet/2016/08/24/whats-new-in-csharp-7-0/) [![Visual Studio](https://img.shields.io/badge/Visual%20Studio-2019-red.svg)](https://www.visualstudio.com/zh-hans/) ![License status](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ![Android Studio](https://img.shields.io/badge/Android%20Studio-3.1-red.svg)
 

@@ -257,9 +257,9 @@ namespace PlcReadTest
         private void SiemensTcpNetInitialization( )
         {
             siemensTcpNet = new SiemensS7Net( SiemensPLCS.S1200 );                          // 实例化西门子的对象
-            siemensTcpNet.IpAddress = "192.168.1.195";                                     // 设置IP地址
-            siemensTcpNet.LogNet = LogNet;                                                 // 设置统一的日志记录器
-            siemensTcpNet.ConnectTimeOut = 1000;                                           // 超时时间为1秒
+            siemensTcpNet.IpAddress = "192.168.8.12";                                       // 设置IP地址
+            siemensTcpNet.LogNet = LogNet;                                                  // 设置统一的日志记录器
+            siemensTcpNet.ConnectTimeOut = 1000;                                            // 超时时间为1秒
 
             // 启动后台读取的线程
             threadReadPlc = new Thread( new System.Threading.ThreadStart( ThreadBackgroundReadPlc ) );
@@ -284,6 +284,7 @@ namespace PlcReadTest
              * 
              **************************************************************************************************/
 
+            double temperature = 100f;
 
             while (true)
             {
@@ -299,14 +300,17 @@ namespace PlcReadTest
 
                     if (isReadRandom)
                     {
+                        temperature = Math.Round( temperature + random.Next( 100 ) / 10f - 5f, 1 );
+                        if (temperature < 0 || temperature > 200) temperature = 100;
+
                         // 当没有测试的设备的时候，此处就演示读取随机数的情况
                         read = HslCommunication.OperateResult.CreateSuccessResult( new JObject( )
                         {
-                            {"temp",new JValue(random.Next(2000)/10d) },
+                            {"temp",new JValue(temperature) },
                             {"enable",new JValue(random.Next(100)>10) },
                             {"product",new JValue(random.Next(10000)) }
                         } );
-                }
+                    }
                     else
                     {
                         HslCommunication.OperateResult<byte[]> tmp = siemensTcpNet.Read( "M100", 7 );
@@ -484,6 +488,7 @@ namespace PlcReadTest
             }
 
             textBox1.AppendText( GetStringFromLogMessage( e ) + Environment.NewLine );
+            e.HslMessage.Cancel = true; // 取消保存
         }
 
         private string GetStringFromLogMessage( HslEventArgs e )
