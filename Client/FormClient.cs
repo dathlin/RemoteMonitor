@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using HslCommunication.Enthernet;
 using HslCommunication.Core.Net;
 using Newtonsoft.Json.Linq;
+using HslCommunication.MQTT;
+using HslCommunication;
 
 namespace Client
 {
@@ -21,65 +23,66 @@ namespace Client
 
         private void FormClient_Load(object sender, EventArgs e)
         {
-            NetComplexInitialization();
+            MqttClientInitialization( );
 
             hslCurve1.SetLeftCurve( "温度", new float[0], Color.LimeGreen );   // 新增一条实时曲线
-            hslCurve1.AddLeftAuxiliary( 100, Color.Tomato );                // 新增一条100度的辅助线
-
-            pushClient.CreatePush( PushCallBack );                          // 创建数据订阅器
+            hslCurve1.AddLeftAuxiliary( 100, Color.Tomato );                   // 新增一条100度的辅助线
         }
 
+        private void FormClient_Shown( object sender, EventArgs e )
+        {
+        }
         private void FormClient_FormClosing(object sender, FormClosingEventArgs e)
         {
-            pushClient?.ClosePush( );
-            complexClient?.ClientClose();
-
+            mqttClient?.ConnectClose( );
             System.Threading.Thread.Sleep( 100 );
         }
 
-        #region Complex Client
+        #region MQTT Client
 
         //===========================================================================================================
         // 网络通讯的客户端块，负责接收来自服务器端推送的数据
 
-        private NetComplexClient complexClient;
+        private MqttClient mqttClient;
         private bool isClientIni = false;                       // 客户端是否进行初始化过数据
 
-        private void NetComplexInitialization()
+        private void MqttClientInitialization( )
         {
-            complexClient = new NetComplexClient();
-            complexClient.EndPointServer = new System.Net.IPEndPoint(
-                System.Net.IPAddress.Parse("127.0.0.1"), 23456);
-            complexClient.AcceptByte += ComplexClient_AcceptByte;
-            complexClient.AcceptString += ComplexClient_AcceptString;
-            complexClient.ClientStart();
-        }
-
-        private void ComplexClient_AcceptString(AppSession session, HslCommunication.NetHandle handle, string data)
-        {
-            // 接收到服务器发送过来的字符串数据时触发
-        }
-
-        private void ComplexClient_AcceptByte( AppSession session, HslCommunication.NetHandle handle, byte[] buffer)
-        {
-            // 接收到服务器发送过来的字节数据时触发
-            if (handle == 1)
+            mqttClient = new MqttClient( new MqttConnectionOptions( )
             {
-                // 该buffer是读取到的西门子数据
-                //if (isClientIni)
-                //{
-                //    ShowReadContent( buffer );
-                //}
+                IpAddress = "127.0.0.1",
+                ClientId = "admin",
+                Port = 1883
+            } );
+            mqttClient.OnMqttMessageReceived += MqttClient_OnMqttMessageReceived;
+
+            // 如果没有连接成功，应该不允许登录
+            mqttClient.ConnectServer( );
+
+            OperateResult sub = mqttClient.SubscribeMessage( "A" );
+            if (!sub.IsSuccess)
+            {
+                MessageBox.Show( sub.Message );
             }
-            else if(handle == 2)
-            {
-                // 初始化的数据
-                ShowHistory( buffer );
+        }
 
+        private void MqttClient_OnMqttMessageReceived( string topic, byte[] payload )
+        {
+            if (topic == "2")
+            {
+                ShowHistory( payload );
                 isClientIni = true;
             }
-        }
+            else if (topic == "A")
+            {
+                JObject content = JObject.Parse( Encoding.UTF8.GetString( payload ) );
 
+                if (isClientIni)
+                {
+                    ShowReadContent( content );
+                }
+            }
+        }
 
         #endregion
         
@@ -148,52 +151,37 @@ namespace Client
 
         #region Simplify Client
 
-        private NetSimplifyClient simplifyClient = new NetSimplifyClient( "127.0.0.1", 23457 );
-
-        #endregion
-
-        #region Push NetClient
-
-        private NetPushClient pushClient = new NetPushClient( "127.0.0.1", 23467, "A" );                          // 数据订阅器，负责订阅主要的数据
-
-        private void PushCallBack( NetPushClient pushClient, string value )
-        {
-            JObject content = JObject.Parse( value );
-
-            if (isClientIni)
-            {
-                ShowReadContent( content );
-            }
-        }
+        private MqttSyncClient mqttSyncClient = new MqttSyncClient( "127.0.0.1", 1883 );
 
         #endregion
 
         private void userButton2_Click( object sender, EventArgs e )
         {
             // 远程通知服务器启动设备 
-            HslCommunication.OperateResult<string> operate = simplifyClient.ReadFromServer( 1, "" );
+            HslCommunication.OperateResult<string, string> operate = mqttSyncClient.ReadString( "StartPLC", "" );
             if (operate.IsSuccess)
             {
-                MessageBox.Show( operate.Content );
+                MessageBox.Show( operate.Content1 );
             }
             else
             {
-                MessageBox.Show( "启动失败！" + operate.Message );
+                MessageBox.Show( "通讯失败！" + operate.Message );
             }
         }
 
         private void userButton3_Click( object sender, EventArgs e )
         {
             // 远程通知服务器停止设备
-            HslCommunication.OperateResult<string> operate = simplifyClient.ReadFromServer( 2, "" );
+            HslCommunication.OperateResult<string, string> operate = mqttSyncClient.ReadString( "StopPLC", "" );
             if (operate.IsSuccess)
             {
-                MessageBox.Show( operate.Content );
+                MessageBox.Show( operate.Content1 );
             }
             else
             {
-                MessageBox.Show( "启动失败！" + operate.Message );
+                MessageBox.Show( "通讯失败！" + operate.Message );
             }
         }
+
     }
 }

@@ -7,6 +7,8 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json.Linq;
 using HslCommunication.Enthernet;
+using HslCommunication.MQTT;
+using System.Text;
 
 namespace WebApplication1.Hubs
 {
@@ -40,7 +42,7 @@ namespace WebApplication1.Hubs
         private readonly IHubContext _hubContext;
 
 
-        private NetPushClient pushClient;
+        private MqttClient mqttClient;
 
         public Broadcaster( )
         {
@@ -48,19 +50,26 @@ namespace WebApplication1.Hubs
             _hubContext = GlobalHost.ConnectionManager.GetHubContext<MyHub>( );
 
             // 实例化一个数据
-            pushClient = new NetPushClient( "127.0.0.1", 23467, "A" );
-            pushClient.CreatePush( NetPushCallBack );
-
+            mqttClient = new MqttClient( new MqttConnectionOptions( )
+            {
+                IpAddress = "127.0.0.1",
+                ClientId = "web",
+                Port = 1883
+            } );
+            mqttClient.OnMqttMessageReceived += MqttClient_OnMqttMessageReceived;
+            mqttClient.ConnectServer( );
+            mqttClient.SubscribeMessage( "A" );
         }
 
-
-        private void NetPushCallBack( NetPushClient pushClient, string str )
+        private void MqttClient_OnMqttMessageReceived( string topic, byte[] payload )
         {
-            JObject json = JObject.Parse( str );
+            if (topic == "A")
+            {
+                JObject json = JObject.Parse( Encoding.UTF8.GetString( payload ) );
 
-            _hubContext.Clients.All.sendData( json );
+                _hubContext.Clients.All.sendData( json );
+            }
         }
-
 
         public static Broadcaster Instance
         {

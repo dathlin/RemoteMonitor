@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using System.Data.SqlClient;
 using HslCommunication.Core.Net;
 using System.Threading;
+using HslCommunication.MQTT;
 
 namespace PlcReadTest
 {
@@ -52,189 +53,64 @@ namespace PlcReadTest
         private void FormServer_Load( object sender, EventArgs e )
         {
             LogNet = new LogNetDateTime( Application.StartupPath + "\\Logs", GenerateMode.ByEveryDay ); // 创建日志器，按每天存储不同的文件
-            LogNet.BeforeSaveToFile += LogNet_BeforeSaveToFile;              // 设置存储日志前的一些额外操作
-            NetComplexInitialization( );                                     // 初始化网络服务
-            NetSimplifyInitialization( );                                    // 初始化同步网络服务
-            NetPushServerInitialization( );
-            TimerInitialization( );                                          // 定时器初始化
             SiemensTcpNetInitialization( );                                  // PLC读取初始化
+            LogNet.BeforeSaveToFile += LogNet_BeforeSaveToFile;              // 设置存储日志前的一些额外操作
+            MqttServerInitialization( );                                     // 启动核心的网络引擎
+            TimerInitialization( );                                          // 定时器初始化
         }
 
 
         #endregion
 
-        #region 在线网络服务端支持
+        #region 网络的核心引擎
 
+        private MqttServer mqttServer;
 
-        /*****************************************************************************************************
-         * 
-         *    特别说明：在线网络的模块的代码主要是为了支持服务器对客户端在线的情况进行管理
-         *    
-         *             当客户端刚上线的时候，服务器也可以发送一些初始数据给客户端
-         * 
-         *****************************************************************************************************/
-
-
-
-        private NetComplexServer netComplex;                            // 在线网络管理核心
-
-        private void NetComplexInitialization( )
+        public void MqttServerInitialization( )
         {
-            netComplex = new NetComplexServer( );                        // 实例化
-            netComplex.AcceptString += NetComplex_AcceptString;          // 绑定字符串接收事件
-            netComplex.ClientOnline += NetComplex_ClientOnline;          // 客户端上线的时候触发
-            netComplex.ClientOffline += NetComplex_ClientOffline;        // 客户端下线的时候触发
-            netComplex.LogNet = LogNet;                                  // 设置日志
-            netComplex.ServerStart( 23456 );                             // 启动网络服务
-
+            mqttServer = new MqttServer( );
+            mqttServer.OnClientApplicationMessageReceive += MqttServer_OnClientApplicationMessageReceive;
+            mqttServer.OnClientConnected += MqttServer_OnClientConnected;
+            mqttServer.ServerStart( 1883 );
         }
 
-        private void NetComplex_ClientOffline( AppSession session, string object2 )
+        private void MqttServer_OnClientConnected( MqttSession session )
         {
-            // 客户端下线的时候触发方法
-            RemoveOnLine( session.ClientUniqueID );
-        }
-
-        private void NetComplex_ClientOnline( AppSession session )
-        {
-            // 回发一条初始化数据的信息
-            netComplex.Send( session, 2, GetHistory( ) );
-            // 有客户端上限时触发方法
-            NetAccount account = new NetAccount( )
+            if (session.Protocol == "MQTT")
             {
-                Guid = session.ClientUniqueID,
-                Ip = session.IpAddress,
-                Name = session.LoginAlias,
-                OnlineTime = DateTime.Now,
-            };
-
-            AddOnLine( account );
-        }
-
-
-
-
-        private void NetComplex_AcceptString( AppSession stateone, HslCommunication.NetHandle handle, string data )
-        {
-            // 接收到客户端发来的数据时触发
-
-        }
-
-
-        #endregion
-
-        #region 同步网络服务器支持
-
-        /*****************************************************************************************************
-         * 
-         *    特别说明：同步网络模块，用来支持远程的写入操作，特点是支持是否成功的反馈，这个信号对客户端来说是至关重要的
-         *    
-         *             不仅仅支持客户端的操作，还支持web端的操作。
-         * 
-         *****************************************************************************************************/
-
-        private NetSimplifyServer netSimplify;                                     // 同步网络访问的服务支持
-
-        private void NetSimplifyInitialization( )
-        {
-            netSimplify = new NetSimplifyServer( );                                // 实例化
-            netSimplify.ReceiveStringEvent += NetSimplify_ReceiveStringEvent;      // 服务器接收字符串信息的时候，触发
-            netSimplify.LogNet = LogNet;                                           // 设置日志
-            netSimplify.ServerStart( 23457 );                                      // 启动服务
-        }
-
-        private void NetSimplify_ReceiveStringEvent( AppSession session, HslCommunication.NetHandle handle, string msg )
-        {
-            if (handle == 1)
-            {
-                string tmp = StartPLC( );
-                LogNet?.WriteInfo( tmp );
-                // 远程启动设备
-                netSimplify.SendMessage( session, handle, tmp );
+                // 当客户端连接上来的时候，进行回发一个初始化的数据信息
+                mqttServer.PublishTopicPayload( session, "2", GetHistory( ) );
             }
-            else if (handle == 2)
+        }
+
+        private void MqttServer_OnClientApplicationMessageReceive( MqttSession session, MqttClientApplicationMessage message )
+        {
+            if(session.Protocol == "MQTT")
             {
-                string tmp = StopPLC( );
-                LogNet?.WriteInfo( tmp );
-                // 远程停止设备
-                netSimplify.SendMessage( session, handle, tmp );
+                // 异步的推送
             }
             else
             {
-                netSimplify.SendMessage( session, handle, msg );
-            }
-        }
-
-        #endregion
-
-        #region 在线客户端实现块
-
-        private List<NetAccount> all_accounts = new List<NetAccount>( );
-        private object obj_lock = new object( );
-
-        // 新增一个用户账户到在线客户端
-        private void AddOnLine( NetAccount item )
-        {
-            lock (obj_lock)
-            {
-                all_accounts.Add( item );
-            }
-            UpdateOnlineClients( );
-        }
-
-        // 移除在线账户并返回相应的在线信息
-        private void RemoveOnLine( string guid )
-        {
-            lock (obj_lock)
-            {
-                for (int i = 0; i < all_accounts.Count; i++)
+                // 同步网络
+                if (message.Topic == "StartPLC")
                 {
-                    if (all_accounts[i].Guid == guid)
-                    {
-                        all_accounts.RemoveAt( i );
-                        break;
-                    }
+                    string tmp = StartPLC( );
+                    LogNet?.WriteInfo( tmp );
+                    // 远程启动设备
+                    mqttServer.PublishTopicPayload( session, tmp, Encoding.UTF8.GetBytes(tmp) );
+                }
+                else if (message.Topic == "StopPLC")
+                {
+                    string tmp = StopPLC( );
+                    LogNet?.WriteInfo( tmp );
+                    // 远程停止设备
+                    mqttServer.PublishTopicPayload( session, tmp, Encoding.UTF8.GetBytes( tmp ) );
+                }
+                else
+                {
+                    mqttServer.PublishTopicPayload( session, message.Topic, message.Payload );
                 }
             }
-            UpdateOnlineClients( );
-        }
-
-        /// <summary>
-        /// 更新客户端在线信息
-        /// </summary>
-        private void UpdateOnlineClients( )
-        {
-            if (InvokeRequired && IsHandleCreated)
-            {
-                Invoke( new Action( UpdateOnlineClients ) );
-                return;
-            }
-
-            lock (obj_lock)
-            {
-                listBox1.DataSource = all_accounts.ToArray( );
-            }
-        }
-
-        #endregion
-
-        #region 数据的订阅发布实现
-
-        /****************************************************************************************************************
-         * 
-         *    本模块主要负责进行数据的发布。只要客户端订阅了相关的数据，服务器端进行推送后，客户端就可以收到数据
-         *    
-         *    因为本订阅器目前只支持字符串的数据订阅，所以在这里需要将byts[]转化成base64编码的数据，相关的知识请自行百度，此处不再说明
-         * 
-         *****************************************************************************************************************/
-
-        private NetPushServer pushServer = null;                 // 订阅发布核心服务器
-
-        private void NetPushServerInitialization( )
-        {
-            pushServer = new NetPushServer( );
-            pushServer.LogNet = LogNet;
-            pushServer.ServerStart( 23467 );
         }
 
 
@@ -257,9 +133,10 @@ namespace PlcReadTest
         private void SiemensTcpNetInitialization( )
         {
             siemensTcpNet = new SiemensS7Net( SiemensPLCS.S1200 );                          // 实例化西门子的对象
-            siemensTcpNet.IpAddress = "192.168.8.12";                                       // 设置IP地址
-            siemensTcpNet.LogNet = LogNet;                                                  // 设置统一的日志记录器
+            siemensTcpNet.IpAddress = "127.0.0.1";                                          // 设置IP地址
+            //siemensTcpNet.LogNet = LogNet;                                                  // 设置统一的日志记录器
             siemensTcpNet.ConnectTimeOut = 1000;                                            // 超时时间为1秒
+            siemensTcpNet.SetPersistentConnection( );                                       // 设置为长连接
 
             // 启动后台读取的线程
             threadReadPlc = new Thread( new System.Threading.ThreadStart( ThreadBackgroundReadPlc ) );
@@ -336,11 +213,9 @@ namespace PlcReadTest
 
                     if (read.IsSuccess)
                     { 
-                        failed = 0;                                                              // 读取失败次数清空
-                        pushServer.PushString( "A", read.Content.ToString() );    // 推送数据，关键字为A
-                        ShowReadContent( read.Content );                                         // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
-
-
+                        failed = 0;                                                                                   // 读取失败次数清空
+                        mqttServer.PublishTopicPayload( "A", Encoding.UTF8.GetBytes( read.Content.ToString( ) ) );    // 推送数据，关键字为A
+                        ShowReadContent( read.Content );                                                              // 在主界面进行显示，此处仅仅是测试，实际项目中不建议在服务端显示数据信息
                     }
                     else
                     {
@@ -465,7 +340,7 @@ namespace PlcReadTest
                 m_isRedBackColor = false;
             }
 
-            UpdateOnlineClients( );
+            listBox1.DataSource = mqttServer.OnlineSessions;
         }
 
 
